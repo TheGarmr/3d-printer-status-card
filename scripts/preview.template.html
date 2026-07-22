@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3D printer status card — Preview</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ha-card-background: #202124;
+      --card-background-color: #202124;
+      --primary-text-color: #f1f3f4;
+      --secondary-text-color: #aeb3bb;
+      --divider-color: #3b3d42;
+      --secondary-background-color: #2b2d31;
+      --text-primary-color: #fff;
+      --success-color: #51b56d;
+      --warning-color: #ffb74d;
+      --error-color: #ef6c67;
+      --info-color: #55aaf5;
+      --ha-card-border-color: #3b3d42;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      color: var(--primary-text-color);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(70, 88, 120, .22), transparent 34%),
+        #151619;
+      font-family: Roboto, "Segoe UI", sans-serif;
+    }
+
+    .page {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .language-control {
+      display: grid;
+      gap: 5px;
+      min-width: 164px;
+      color: var(--secondary-text-color);
+      font-size: 12px;
+    }
+
+    .language-control select {
+      width: 100%;
+      padding: 8px 30px 8px 10px;
+      border: 1px solid var(--ha-card-border-color);
+      border-radius: 9px;
+      color: var(--primary-text-color);
+      background: var(--secondary-background-color);
+      font: inherit;
+      font-size: 13px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--secondary-text-color);
+      font-size: 14px;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .scenario {
+      min-width: 0;
+    }
+
+    ha-card {
+      display: block;
+      overflow: hidden;
+      border: 1px solid var(--ha-card-border-color);
+      border-radius: 14px;
+      background: var(--ha-card-background);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, .2);
+    }
+
+    ha-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--mdc-icon-size, 20px);
+      height: var(--mdc-icon-size, 20px);
+      font-size: calc(var(--mdc-icon-size, 20px) * .8);
+      line-height: 1;
+    }
+
+    hui-picture-entity-card {
+      display: block;
+      min-height: 188px;
+    }
+
+    .camera-mock {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 188px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 152, 0, .16), transparent 45%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 26px),
+        #111318;
+    }
+
+    .camera-mock::before {
+      content: "";
+      position: absolute;
+      inset: 14% 22%;
+      border: 2px solid rgba(255,255,255,.16);
+      border-radius: 12px 12px 28px 28px;
+      background: linear-gradient(180deg, #34383f 0 22%, #1f2329 22% 100%);
+      box-shadow: 0 16px 28px rgba(0,0,0,.45);
+    }
+
+    .camera-printer {
+      position: relative;
+      z-index: 1;
+      color: #ffb74d;
+      font-size: 42px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.6));
+    }
+
+    .camera-caption {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      z-index: 1;
+      padding: 4px 7px;
+      border-radius: 6px;
+      color: #d7dbe0;
+      background: rgba(0,0,0,.6);
+      font-size: 10px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 20;
+      transform: translate(-50%, 16px);
+      padding: 9px 14px;
+      border: 1px solid #4b4e55;
+      border-radius: 8px;
+      opacity: 0;
+      color: var(--primary-text-color);
+      background: #27292d;
+      font-size: 12px;
+      transition: .2s ease;
+      pointer-events: none;
+    }
+
+    #toast.visible {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 850px) {
+      .preview-grid { grid-template-columns: 1fr; }
+      .page-header { align-items: stretch; flex-direction: column; }
+      .language-control { width: 100%; }
+      body { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <h1>3D printer status card</h1>
+        <p class="subtitle">Optional plug gating, printer availability, camera, Spoolman and macros</p>
+      </div>
+      <label class="language-control">
+        <span>Language</span>
+        <select id="preview-language">
+          <option value="en" selected>English</option>
+          <option value="ru">Русский</option>
+          <option value="uk">Українська</option>
+        </select>
+      </label>
+    </header>
+
+    <section class="preview-grid">
+      <div class="scenario">
+        <div data-card="offline"></div>
+      </div>
+      <div class="scenario">
+        <div data-card="switched-off"></div>
+      </div>
+      <div class="scenario">
+        <div data-card="printing"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="editor-smoke-test" hidden></div>
+  <div id="toast"></div>
+
+  <script>
+    if (!customElements.get('ha-card')) {
+      customElements.define('ha-card', class extends HTMLElement {});
+    }
+
+    if (!customElements.get('ha-icon')) {
+      const glyphs = {
+        'mdi:power': '⏻',
+        'mdi:timer-sand': '◷',
+        'mdi:timer-outline': '◴',
+        'mdi:clock-end': '◷',
+        'mdi:printer-3d-nozzle': '⌁',
+        'mdi:radiator': '▤',
+        'mdi:thermometer': '♨',
+        'mdi:clock-outline': '◷',
+        'mdi:filament': '◉',
+        'mdi:flash': 'ϟ',
+        'mdi:spool': '◎'
+      };
+      customElements.define('ha-icon', class extends HTMLElement {
+        static get observedAttributes() { return ['icon']; }
+        connectedCallback() { this.draw(); }
+        attributeChangedCallback() { this.draw(); }
+        draw() { this.textContent = glyphs[this.getAttribute('icon')] || '•'; }
+      });
+    }
+
+    if (!customElements.get('hui-picture-entity-card')) {
+      customElements.define('hui-picture-entity-card', class extends HTMLElement {
+        setConfig(config) { this.config = config; this.draw(); }
+        set hass(value) { this._hass = value; this.draw(); }
+        connectedCallback() { this.draw(); }
+        draw() {
+          if (!this.config) return;
+          this.style.display = 'block';
+          this.style.minHeight = '188px';
+          this.innerHTML = `
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;min-height:188px;overflow:hidden;background:linear-gradient(135deg,rgba(255,152,0,.16),transparent 45%),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 26px),#111318">
+              <div style="position:absolute;inset:14% 22%;border:2px solid rgba(255,255,255,.16);border-radius:12px 12px 28px 28px;background:linear-gradient(180deg,#34383f 0 22%,#1f2329 22% 100%);box-shadow:0 16px 28px rgba(0,0,0,.45)"></div>
+              <div style="position:relative;z-index:1;width:42px;height:42px;border:3px solid #ffb74d;border-radius:4px;box-sizing:border-box;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))">
+                <div style="position:absolute;left:7px;right:7px;top:7px;height:3px;background:#ffb74d;box-shadow:0 9px 0 #ffb74d,0 18px 0 #ffb74d"></div>
+              </div>
+              <div style="position:absolute;right:10px;bottom:8px;z-index:1;padding:4px 7px;border-radius:6px;color:#d7dbe0;background:rgba(0,0,0,.6);font-size:10px;letter-spacing:.05em;text-transform:uppercase">Live camera</div>
+            </div>`;
+        }
+      });
+    }
+
+    function state(value, unit, attributes = {}) {
+      return {
+        state: String(value),
+        attributes: { ...attributes, ...(unit ? { unit_of_measurement: unit } : {}) }
+      };
+    }
+
+    const states = {
+      'switch.offline_plug': state('unavailable'),
+      'sensor.offline_plug_power': state('unavailable', 'W'),
+      'sensor.offline_printer_status': state('unavailable'),
+
+      'switch.switched_off_plug': state('off'),
+      'sensor.switched_off_power': state('0', 'W'),
+      'sensor.switched_off_status': state('unavailable'),
+      'binary_sensor.switched_off_filament': state('off'),
+
+      'switch.printer_plug': state('on'),
+      'sensor.printer_power': state('238.4', 'W'),
+      'sensor.printer_status': state('printing'),
+      'sensor.printer_remaining': state('1:42:18'),
+      'sensor.printer_elapsed': state('0:36:12'),
+      'sensor.printer_filament_used': state('14.8', 'm'),
+      'sensor.printer_bed_temperature': state('60.2', '°C'),
+      'sensor.printer_extruder_temperature': state('210.5', '°C'),
+      'sensor.printer_total_print_time': state('326.4', 'h'),
+      'binary_sensor.printer_filament': state('on'),
+      'sensor.printer_filename': state('calibration_cube_0.2mm.gcode'),
+      'camera.printer': state('streaming'),
+      'sensor.printer_spool_id': state('7'),
+      'sensor.spoolman_spool_7': state('842', 'g', { remaining_weight: 842 }),
+      'sensor.spoolman_spool_7_filament_name': state('Polymaker PLA Pro'),
+      'sensor.spoolman_spool_7_color_hex': state('ff7a18'),
+      'sensor.spoolman_spool_12': state('635', 'g', { remaining_weight: 635 }),
+      'sensor.spoolman_spool_12_filament_name': state('PETG Black'),
+      'sensor.spoolman_spool_12_color_hex': state('151515'),
+      'sensor.spoolman_spool_18': state('510', 'g', { remaining_weight: 510 }),
+      'sensor.spoolman_spool_18_filament_name': state('ABS Gray'),
+      'sensor.spoolman_spool_18_color_hex': state('8a8f98'),
+      'button.printer_pause': state('unknown')
+    };
+
+    const hass = {
+      states,
+      language: 'en',
+      locale: { language: 'en' },
+      formatEntityState(entity) {
+        const unit = entity.attributes && entity.attributes.unit_of_measurement;
+        return `${entity.state}${unit ? ` ${unit}` : ''}`;
+      },
+      async callService(domain, service, data = {}, target = {}) {
+        const entityId = target.entity_id || data.entity_id;
+        if (entityId && states[entityId] && (service === 'toggle' || service === 'turn_on' || service === 'turn_off')) {
+          const current = states[entityId].state;
+          const next = service === 'turn_on' ? 'on' : service === 'turn_off' ? 'off' : current === 'on' ? 'off' : 'on';
+          states[entityId] = { ...states[entityId], state: next };
+          cards.forEach((card) => { card.hass = { ...hass, states: { ...states } }; });
+        }
+        if (domain === 'rest_command' && service === 'set_spool_id' && Number.isFinite(Number(data.spool_id))) {
+          states['sensor.printer_spool_id'] = state(String(data.spool_id));
+          cards.forEach((card) => { card.hass = { ...hass, states: { ...states } }; });
+        }
+        showToast(`${domain}.${service}${entityId ? ` · ${entityId}` : ''}`);
+      }
+    };
+
+    const cards = [];
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('visible');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => toast.classList.remove('visible'), 1400);
+    }
+
+    document.addEventListener('hass-more-info', (event) => {
+      showToast(`more-info · ${event.detail.entityId}`);
+    });
+
+    window.__preview = { hass, states, cards };
+  </script>
+
+  <script type="module">
+/*__BUNDLE__*/
+  </script>
+
+  <script type="module">
+    const { hass, cards } = window.__preview;
+
+    await customElements.whenDefined('printer-status-card');
+
+    const scenarios = {
+      offline: {
+        name: 'Workshop printer',
+        entities: {
+          power_switch: 'switch.offline_plug',
+          power_now: 'sensor.offline_plug_power',
+          status: 'sensor.offline_printer_status'
+        }
+      },
+      'switched-off': {
+        name: 'Workshop printer',
+        filament_present_state: 'on',
+        filament_missing_state: 'off',
+        entities: {
+          power_switch: 'switch.switched_off_plug',
+          power_now: 'sensor.switched_off_power',
+          status: 'sensor.switched_off_status',
+          filament_present: 'binary_sensor.switched_off_filament'
+        }
+      },
+      printing: {
+        name: 'Ender 3 V3 KE',
+        language: 'en',
+        show_camera: true,
+        camera_view: 'live',
+        filament_present_state: 'on',
+        filament_missing_state: 'off',
+        entities: {
+          status: 'sensor.printer_status',
+          remaining_time: 'sensor.printer_remaining',
+          elapsed_time: 'sensor.printer_elapsed',
+          filament_used: 'sensor.printer_filament_used',
+          bed_temp: 'sensor.printer_bed_temperature',
+          extruder_temp: 'sensor.printer_extruder_temperature',
+          total_print_time: 'sensor.printer_total_print_time',
+          filament_present: 'binary_sensor.printer_filament',
+          filename: 'sensor.printer_filename',
+          power_now: 'sensor.printer_power',
+          power_switch: 'switch.printer_plug',
+          camera: 'camera.printer',
+          spool_id: 'sensor.printer_spool_id'
+        },
+        spoolman: {
+          set_active_spool_service: 'rest_command.set_spool_id'
+        },
+        macros: [
+          { name: 'Pause', entity: 'button.printer_pause' },
+          { name: 'Home axes', service: 'rest_command.printer_gcode', service_data: { script: 'G28' } }
+        ]
+      }
+    };
+
+    const cardInstances = [];
+
+    for (const [name, config] of Object.entries(scenarios)) {
+      const host = document.querySelector(`[data-card="${name}"]`);
+      const card = document.createElement('printer-status-card');
+      card.setConfig({ type: 'custom:printer-status-card', ...config });
+      card.hass = hass;
+      host.appendChild(card);
+      cards.push(card);
+      cardInstances.push({ card, config });
+    }
+
+    const CardClass = customElements.get('printer-status-card');
+    const editor = await CardClass.getConfigElement();
+    editor.hass = hass;
+    editor.setConfig({ type: 'custom:printer-status-card', ...scenarios.printing });
+    document.getElementById('editor-smoke-test').appendChild(editor);
+
+    const languageSelect = document.getElementById('preview-language');
+    const applyPreviewLanguage = (language) => {
+      for (const { card, config } of cardInstances) {
+        card.setConfig({ type: 'custom:printer-status-card', ...config, language });
+        card.hass = hass;
+      }
+      editor.setConfig({
+        type: 'custom:printer-status-card',
+        ...scenarios.printing,
+        language
+      });
+    };
+
+    languageSelect.addEventListener('change', (event) => {
+      applyPreviewLanguage(event.currentTarget.value);
+    });
+    applyPreviewLanguage(languageSelect.value);
+  </script>
+</body>
+</html>

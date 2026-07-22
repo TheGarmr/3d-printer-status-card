@@ -1,0 +1,101 @@
+{
+  "common": {
+    "name": "3D printer status card",
+    "description": "Налаштовувана картка стану 3D-принтера для Home Assistant"
+  },
+  "status": {
+    "poweredOff": "ВИМКНЕНО",
+    "offline": "ОФЛАЙН",
+    "ready": "ГОТОВИЙ",
+    "printing": "ДРУК",
+    "completed": "ЗАВЕРШЕНО",
+    "paused": "ПАУЗА",
+    "error": "ПОМИЛКА",
+    "idle": "ОЧІКУВАННЯ"
+  },
+  "card": {
+    "file": "Файл",
+    "remainingTime": "Залишилося до завершення",
+    "finishesAt": "Завершення",
+    "elapsedTime": "Тривалість друку",
+    "filamentUsed": "Використано філаменту",
+    "bedTemperature": "Температура столу",
+    "extruderTemperature": "Температура екструдера",
+    "totalPrintTime": "Загальний час друку",
+    "filament": "Філамент",
+    "powerNow": "Споживання",
+    "present": "Є",
+    "missing": "Немає",
+    "filamentPresent": "Філамент є",
+    "filamentMissing": "Філамент відсутній",
+    "spoolman": "Поточний філамент",
+    "activeSpool": "Активна котушка",
+    "remaining": "Залишок",
+    "spoolSelection": "Вибір котушки",
+    "macros": "Макроси"
+  },
+  "warning": {
+    "cameraUnavailable": "Картка камери недоступна",
+    "missingEntity": "Сутність не знайдено"
+  },
+  "editor": {
+    "general": "Основне",
+    "printerEntities": "Сутності принтера",
+    "power": "Живлення та доступність",
+    "powerHelp": "Якщо перевірки налаштовані, картка розгортається лише за ввімкненої розетки, споживання вище нуля та доступного статусу принтера.",
+    "filamentStates": "Стани філаменту",
+    "spoolman": "Spoolman",
+    "macros": "Макроси",
+    "macro": "Макрос",
+    "invalidJson": "Введіть коректний JSON-об’єкт",
+    "noMacros": "Макроси не налаштовані"
+  },
+  "fields": {
+    "language": "Мова",
+    "name": "Назва",
+    "showCamera": "Показувати камеру",
+    "cameraView": "Режим камери",
+    "status": "Статус принтера / перевірка онлайн",
+    "remainingTime": "Час, що залишився",
+    "elapsedTime": "Тривалість друку",
+    "filamentUsed": "Використано філаменту",
+    "bedTemperature": "Температура столу",
+    "extruderTemperature": "Температура екструдера",
+    "totalPrintTime": "Загальний час друку",
+    "filamentPresent": "Датчик філаменту",
+    "filename": "Назва файлу",
+    "camera": "Камера",
+    "powerSwitch": "Розетка / автомат",
+    "powerNow": "Споживання",
+    "filamentPresentState": "Стан «є»",
+    "filamentMissingState": "Стан «немає»",
+    "spoolId": "Сенсор ID активної котушки",
+    "setActiveSpoolService": "Сервіс вибору активної котушки",
+    "spoolEntityTemplate": "Шаблон сутності котушки",
+    "filamentNameEntityTemplate": "Шаблон назви філаменту",
+    "colorHexEntityTemplate": "Шаблон сутності кольору",
+    "idEntityTemplate": "Шаблон сутності ID",
+    "macroName": "Назва",
+    "macroKind": "Тип",
+    "macroEntity": "Сутність",
+    "macroService": "Сервіс (domain.service)",
+    "serviceData": "Дані сервісу (JSON)",
+    "target": "Ціль (JSON)"
+  },
+  "options": {
+    "english": "English",
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "live": "Наживо",
+    "auto": "Авто",
+    "entity": "Сутність",
+    "service": "Сервіс"
+  },
+  "actions": {
+    "togglePower": "Перемкнути живлення",
+    "addMacro": "Додати макрос",
+    "removeMacro": "Видалити макрос",
+    "moveUp": "Підняти",
+    "moveDown": "Опустити"
+  }
+}

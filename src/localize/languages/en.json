@@ -1,0 +1,104 @@
+{
+  "common": {
+    "name": "3D printer status card",
+    "description": "A configurable Home Assistant status card for 3D printers"
+  },
+  "status": {
+    "poweredOff": "POWERED OFF",
+    "offline": "OFFLINE",
+    "ready": "READY",
+    "printing": "PRINTING",
+    "completed": "COMPLETED",
+    "paused": "PAUSED",
+    "error": "ERROR",
+    "idle": "IDLE"
+  },
+  "card": {
+    "file": "File",
+    "remainingTime": "Time remaining",
+    "finishesAt": "Finishes at",
+    "elapsedTime": "Print duration",
+    "filamentUsed": "Filament used",
+    "bedTemperature": "Bed temperature",
+    "extruderTemperature": "Extruder temperature",
+    "totalPrintTime": "Total print time",
+    "filament": "Filament",
+    "powerNow": "Consumption",
+    "present": "Present",
+    "missing": "Missing",
+    "filamentPresent": "Filament present",
+    "filamentMissing": "Filament missing",
+    "spoolman": "Current filament",
+    "activeSpool": "Active spool",
+    "remaining": "Remaining",
+    "spoolSelection": "Spool selection",
+    "macros": "Macros"
+  },
+  "warning": {
+    "cameraUnavailable": "Camera card unavailable",
+    "missingEntity": "Entity not found"
+  },
+  "editor": {
+    "general": "General",
+    "printerEntities": "Printer entities",
+    "power": "Power and availability",
+    "powerHelp": "When configured, the card expands only while the switch is on, consumption is above zero, and the printer status is online.",
+    "filamentStates": "Filament states",
+    "spoolman": "Spoolman",
+    "macros": "Macros",
+    "macro": "Macro",
+    "invalidJson": "Enter a valid JSON object",
+    "noMacros": "No macros configured"
+  },
+  "fields": {
+    "language": "Language",
+    "name": "Name",
+    "showCamera": "Show camera",
+    "cameraView": "Camera view",
+    "status": "Printer status / online check",
+    "remainingTime": "Remaining time",
+    "elapsedTime": "Print duration",
+    "filamentUsed": "Filament used",
+    "bedTemperature": "Bed temperature",
+    "extruderTemperature": "Extruder temperature",
+    "totalPrintTime": "Total print time",
+    "filamentPresent": "Filament sensor",
+    "filename": "Filename",
+    "camera": "Camera",
+    "powerSwitch": "Plug / breaker switch",
+    "powerNow": "Consumption",
+    "filamentPresentState": "Present state",
+    "filamentMissingState": "Missing state",
+    "spoolId": "Active spool ID sensor",
+    "setActiveSpoolService": "Set active spool service",
+    "spoolEntityTemplate": "Spool entity template",
+    "filamentNameEntityTemplate": "Filament name entity template",
+    "colorHexEntityTemplate": "Color entity template",
+    "idEntityTemplate": "ID entity template",
+    "macroName": "Name",
+    "macroKind": "Type",
+    "macroEntity": "Entity",
+    "macroService": "Service (domain.service)",
+    "serviceData": "Service data (JSON)",
+    "target": "Target (JSON)"
+  },
+  "options": {
+    "english": "English",
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "live": "Live",
+    "auto": "Auto",
+    "entity": "Entity",
+    "service": "Service"
+  },
+  "actions": {
+    "togglePower": "Toggle power",
+    "addMacro": "Add macro",
+    "removeMacro": "Remove macro",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
+  },
+  "fallback": {
+    "englishOnly": "English fallback"
+  }
+}

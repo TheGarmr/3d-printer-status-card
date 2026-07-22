@@ -1,0 +1,101 @@
+{
+  "common": {
+    "name": "3D printer status card",
+    "description": "Настраиваемая карточка состояния 3D-принтера для Home Assistant"
+  },
+  "status": {
+    "poweredOff": "ВЫКЛЮЧЕН",
+    "offline": "ОФФЛАЙН",
+    "ready": "ГОТОВ",
+    "printing": "ПЕЧАТЬ",
+    "completed": "ЗАВЕРШЕНО",
+    "paused": "ПАУЗА",
+    "error": "ОШИБКА",
+    "idle": "ОЖИДАНИЕ"
+  },
+  "card": {
+    "file": "Файл",
+    "remainingTime": "Осталось до конца",
+    "finishesAt": "Завершение",
+    "elapsedTime": "Длительность печати",
+    "filamentUsed": "Использовано филамента",
+    "bedTemperature": "Температура стола",
+    "extruderTemperature": "Температура экструдера",
+    "totalPrintTime": "Общее время печати",
+    "filament": "Филамент",
+    "powerNow": "Потребление",
+    "present": "Есть",
+    "missing": "Нету",
+    "filamentPresent": "Филамент есть",
+    "filamentMissing": "Филамент отсутствует",
+    "spoolman": "Текущий филамент",
+    "activeSpool": "Активная катушка",
+    "remaining": "Остаток",
+    "spoolSelection": "Выбор катушки",
+    "macros": "Макросы"
+  },
+  "warning": {
+    "cameraUnavailable": "Карточка камеры недоступна",
+    "missingEntity": "Сущность не найдена"
+  },
+  "editor": {
+    "general": "Основное",
+    "printerEntities": "Сущности принтера",
+    "power": "Питание и доступность",
+    "powerHelp": "Если проверки настроены, карточка разворачивается только при включённой розетке, потреблении выше нуля и доступном статусе принтера.",
+    "filamentStates": "Состояния филамента",
+    "spoolman": "Spoolman",
+    "macros": "Макросы",
+    "macro": "Макрос",
+    "invalidJson": "Введите корректный JSON-объект",
+    "noMacros": "Макросы не настроены"
+  },
+  "fields": {
+    "language": "Язык",
+    "name": "Название",
+    "showCamera": "Показывать камеру",
+    "cameraView": "Режим камеры",
+    "status": "Статус принтера / проверка онлайн",
+    "remainingTime": "Оставшееся время",
+    "elapsedTime": "Длительность печати",
+    "filamentUsed": "Использовано филамента",
+    "bedTemperature": "Температура стола",
+    "extruderTemperature": "Температура экструдера",
+    "totalPrintTime": "Общее время печати",
+    "filamentPresent": "Датчик филамента",
+    "filename": "Имя файла",
+    "camera": "Камера",
+    "powerSwitch": "Розетка / автомат",
+    "powerNow": "Потребление",
+    "filamentPresentState": "Состояние «есть»",
+    "filamentMissingState": "Состояние «нет»",
+    "spoolId": "Сенсор ID активной катушки",
+    "setActiveSpoolService": "Сервис выбора активной катушки",
+    "spoolEntityTemplate": "Шаблон сущности катушки",
+    "filamentNameEntityTemplate": "Шаблон названия филамента",
+    "colorHexEntityTemplate": "Шаблон сущности цвета",
+    "idEntityTemplate": "Шаблон сущности ID",
+    "macroName": "Название",
+    "macroKind": "Тип",
+    "macroEntity": "Сущность",
+    "macroService": "Сервис (domain.service)",
+    "serviceData": "Данные сервиса (JSON)",
+    "target": "Цель (JSON)"
+  },
+  "options": {
+    "english": "English",
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "live": "Вживую",
+    "auto": "Авто",
+    "entity": "Сущность",
+    "service": "Сервис"
+  },
+  "actions": {
+    "togglePower": "Переключить питание",
+    "addMacro": "Добавить макрос",
+    "removeMacro": "Удалить макрос",
+    "moveUp": "Поднять",
+    "moveDown": "Опустить"
+  }
+}

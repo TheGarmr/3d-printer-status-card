@@ -1,0 +1,58 @@
+type: custom:printer-status-card
+name: Ender 3 V3 KE
+language: en
+show_camera: true
+camera_view: live
+filament_present_state: "on"
+filament_missing_state: "off"
+spoolman:
+  set_active_spool_service: rest_command.set_spool_id
+  spool_entity_template: sensor.spoolman_spool_{id}
+  filament_name_entity_template: sensor.spoolman_spool_{id}_filament_name
+  color_hex_entity_template: sensor.spoolman_spool_{id}_color_hex
+  id_entity_template: sensor.spoolman_spool_{id}_id
+entities:
+  status: sensor.tucana_current_print_state
+  remaining_time: sensor.tucana_print_time_left
+  elapsed_time: sensor.tucana_print_duration
+  filament_used: sensor.tucana_filament_used
+  bed_temp: sensor.tucana_bed_temperature
+  extruder_temp: sensor.tucana_extruder_temperature
+  total_print_time: sensor.tucana_total_print_time
+  filament_present: binary_sensor.tucana_filament_sensor
+  filename: sensor.tucana_filename
+  camera: camera.tucana_webcam
+  power_switch: switch.tucana_plug
+  power_now: sensor.tucana_plug_power
+  spool_id: sensor.tucana_spool_id
+macros:
+  - name: Pause
+    entity: button.tucana_pause_print
+
+  - name: Resume
+    entity: button.tucana_resume_print
+
+  - name: Cancel
+    entity: button.tucana_cancel_print
+
+  - name: Home axes
+    service: rest_command.tucana_gcode
+    service_data:
+      script: G28
+
+  - name: Preheat PLA
+    service: rest_command.tucana_gcode
+    service_data:
+      script: |-
+        M104 S210
+        M140 S60
+
+  - name: Motors off
+    service: rest_command.tucana_gcode
+    service_data:
+      script: M84
+
+  - name: Cooldown
+    service: rest_command.tucana_gcode
+    service_data:
+      script: TURN_OFF_HEATERS

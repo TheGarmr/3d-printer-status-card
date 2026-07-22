@@ -1,0 +1,689 @@
+function t(t,e,i,s){var r,o=arguments.length,n=o<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(t,e,i,s);else for(var a=t.length-1;a>=0;a--)(r=t[a])&&(n=(o<3?r(n):o>3?r(e,i,n):r(e,i))||n);return o>3&&n&&Object.defineProperty(e,i,n),n}"function"==typeof SuppressedError&&SuppressedError;
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const e=globalThis,i=e.ShadowRoot&&(void 0===e.ShadyCSS||e.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),r=new WeakMap;let o=class{constructor(t,e,i){if(this._$cssResult$=!0,i!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o;const e=this.t;if(i&&void 0===t){const i=void 0!==e&&1===e.length;i&&(t=r.get(e)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),i&&r.set(e,t))}return t}toString(){return this.cssText}};const n=(t,...e)=>{const i=1===t.length?t[0]:e.reduce((e,i,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+t[s+1],t[0]);return new o(i,t,s)},a=i?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const i of t.cssRules)e+=i.cssText;return(t=>new o("string"==typeof t?t:t+"",void 0,s))(e)})(t):t,{is:c,defineProperty:l,getOwnPropertyDescriptor:d,getOwnPropertyNames:m,getOwnPropertySymbols:h,getPrototypeOf:p}=Object,u=globalThis,_=u.trustedTypes,f=_?_.emptyScript:"",g=u.reactiveElementPolyfillSupport,v=(t,e)=>t,y={toAttribute(t,e){switch(e){case Boolean:t=t?f:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,e){let i=t;switch(e){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t)}catch(t){i=null}}return i}},$=(t,e)=>!c(t,e),w={attribute:!0,type:String,converter:y,reflect:!1,useDefault:!1,hasChanged:$};
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */Symbol.metadata??=Symbol("metadata"),u.litPropertyMetadata??=new WeakMap;let b=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=w){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){const i=Symbol(),s=this.getPropertyDescriptor(t,i,e);void 0!==s&&l(this.prototype,t,s)}}static getPropertyDescriptor(t,e,i){const{get:s,set:r}=d(this.prototype,t)??{get(){return this[e]},set(t){this[e]=t}};return{get:s,set(e){const o=s?.call(this);r?.call(this,e),this.requestUpdate(t,o,i)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??w}static _$Ei(){if(this.hasOwnProperty(v("elementProperties")))return;const t=p(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(v("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(v("properties"))){const t=this.properties,e=[...m(t),...h(t)];for(const i of e)this.createProperty(i,t[i])}const t=this[Symbol.metadata];if(null!==t){const e=litPropertyMetadata.get(t);if(void 0!==e)for(const[t,i]of e)this.elementProperties.set(t,i)}this._$Eh=new Map;for(const[t,e]of this.elementProperties){const i=this._$Eu(t,e);void 0!==i&&this._$Eh.set(i,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){const e=[];if(Array.isArray(t)){const i=new Set(t.flat(1/0).reverse());for(const t of i)e.unshift(a(t))}else void 0!==t&&e.push(a(t));return e}static _$Eu(t,e){const i=e.attribute;return!1===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){const t=new Map,e=this.constructor.elementProperties;for(const i of e.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t)}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return((t,s)=>{if(i)t.adoptedStyleSheets=s.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const i of s){const s=document.createElement("style"),r=e.litNonce;void 0!==r&&s.setAttribute("nonce",r),s.textContent=i.cssText,t.appendChild(s)}})(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,i){this._$AK(t,i)}_$ET(t,e){const i=this.constructor.elementProperties.get(t),s=this.constructor._$Eu(t,i);if(void 0!==s&&!0===i.reflect){const r=(void 0!==i.converter?.toAttribute?i.converter:y).toAttribute(e,i.type);this._$Em=t,null==r?this.removeAttribute(s):this.setAttribute(s,r),this._$Em=null}}_$AK(t,e){const i=this.constructor,s=i._$Eh.get(t);if(void 0!==s&&this._$Em!==s){const t=i.getPropertyOptions(s),r="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:y;this._$Em=s;const o=r.fromAttribute(e,t.type);this[s]=o??this._$Ej?.get(s)??o,this._$Em=null}}requestUpdate(t,e,i,s=!1,r){if(void 0!==t){const o=this.constructor;if(!1===s&&(r=this[t]),i??=o.getPropertyOptions(t),!((i.hasChanged??$)(r,e)||i.useDefault&&i.reflect&&r===this._$Ej?.get(t)&&!this.hasAttribute(o._$Eu(t,i))))return;this.C(t,e,i)}!1===this.isUpdatePending&&(this._$ES=this._$EP())}C(t,e,{useDefault:i,reflect:s,wrapped:r},o){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,o??e??this[t]),!0!==r||void 0!==o)||(this._$AL.has(t)||(this.hasUpdated||i||(e=void 0),this._$AL.set(t,e)),!0===s&&this._$Em!==t&&(this._$Eq??=new Set).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,e]of this._$Ep)this[t]=e;this._$Ep=void 0}const t=this.constructor.elementProperties;if(t.size>0)for(const[e,i]of t){const{wrapped:t}=i,s=this[e];!0!==t||this._$AL.has(e)||void 0===s||this.C(e,void 0,i,s)}}let t=!1;const e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(e)):this._$EM()}catch(e){throw t=!1,this._$EM(),e}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM()}updated(t){}firstUpdated(t){}};b.elementStyles=[],b.shadowRootOptions={mode:"open"},b[v("elementProperties")]=new Map,b[v("finalized")]=new Map,g?.({ReactiveElement:b}),(u.reactiveElementVersions??=[]).push("2.1.2");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const x=globalThis,E=t=>t,S=x.trustedTypes,A=S?S.createPolicy("lit-html",{createHTML:t=>t}):void 0,C="$lit$",k=`lit$${Math.random().toFixed(9).slice(2)}$`,T="?"+k,P=`<${T}>`,M=document,N=()=>M.createComment(""),R=t=>null===t||"object"!=typeof t&&"function"!=typeof t,O=Array.isArray,U="[ \t\n\f\r]",I=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,D=/-->/g,H=/>/g,z=RegExp(`>|${U}(?:([^\\s"'>=/]+)(${U}*=${U}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),j=/'/g,F=/"/g,L=/^(?:script|style|textarea|title)$/i,K=(t=>(e,...i)=>({_$litType$:t,strings:e,values:i}))(1),J=Symbol.for("lit-noChange"),B=Symbol.for("lit-nothing"),W=new WeakMap,V=M.createTreeWalker(M,129);function q(t,e){if(!O(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==A?A.createHTML(e):e}const G=(t,e)=>{const i=t.length-1,s=[];let r,o=2===e?"<svg>":3===e?"<math>":"",n=I;for(let e=0;e<i;e++){const i=t[e];let a,c,l=-1,d=0;for(;d<i.length&&(n.lastIndex=d,c=n.exec(i),null!==c);)d=n.lastIndex,n===I?"!--"===c[1]?n=D:void 0!==c[1]?n=H:void 0!==c[2]?(L.test(c[2])&&(r=RegExp("</"+c[2],"g")),n=z):void 0!==c[3]&&(n=z):n===z?">"===c[0]?(n=r??I,l=-1):void 0===c[1]?l=-2:(l=n.lastIndex-c[2].length,a=c[1],n=void 0===c[3]?z:'"'===c[3]?F:j):n===F||n===j?n=z:n===D||n===H?n=I:(n=z,r=void 0);const m=n===z&&t[e+1].startsWith("/>")?" ":"";o+=n===I?i+P:l>=0?(s.push(a),i.slice(0,l)+C+i.slice(l)+k+m):i+k+(-2===l?e:m)}return[q(t,o+(t[i]||"<?>")+(2===e?"</svg>":3===e?"</math>":"")),s]};class Y{constructor({strings:t,_$litType$:e},i){let s;this.parts=[];let r=0,o=0;const n=t.length-1,a=this.parts,[c,l]=G(t,e);if(this.el=Y.createElement(c,i),V.currentNode=this.el.content,2===e||3===e){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes)}for(;null!==(s=V.nextNode())&&a.length<n;){if(1===s.nodeType){if(s.hasAttributes())for(const t of s.getAttributeNames())if(t.endsWith(C)){const e=l[o++],i=s.getAttribute(t).split(k),n=/([.?@])?(.*)/.exec(e);a.push({type:1,index:r,name:n[2],strings:i,ctor:"."===n[1]?et:"?"===n[1]?it:"@"===n[1]?st:tt}),s.removeAttribute(t)}else t.startsWith(k)&&(a.push({type:6,index:r}),s.removeAttribute(t));if(L.test(s.tagName)){const t=s.textContent.split(k),e=t.length-1;if(e>0){s.textContent=S?S.emptyScript:"";for(let i=0;i<e;i++)s.append(t[i],N()),V.nextNode(),a.push({type:2,index:++r});s.append(t[e],N())}}}else if(8===s.nodeType)if(s.data===T)a.push({type:2,index:r});else{let t=-1;for(;-1!==(t=s.data.indexOf(k,t+1));)a.push({type:7,index:r}),t+=k.length-1}r++}}static createElement(t,e){const i=M.createElement("template");return i.innerHTML=t,i}}function Z(t,e,i=t,s){if(e===J)return e;let r=void 0!==s?i._$Co?.[s]:i._$Cl;const o=R(e)?void 0:e._$litDirective$;return r?.constructor!==o&&(r?._$AO?.(!1),void 0===o?r=void 0:(r=new o(t),r._$AT(t,i,s)),void 0!==s?(i._$Co??=[])[s]=r:i._$Cl=r),void 0!==r&&(e=Z(t,r._$AS(t,e.values),r,s)),e}class Q{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:e},parts:i}=this._$AD,s=(t?.creationScope??M).importNode(e,!0);V.currentNode=s;let r=V.nextNode(),o=0,n=0,a=i[0];for(;void 0!==a;){if(o===a.index){let e;2===a.type?e=new X(r,r.nextSibling,this,t):1===a.type?e=new a.ctor(r,a.name,a.strings,this,t):6===a.type&&(e=new rt(r,this,t)),this._$AV.push(e),a=i[++n]}o!==a?.index&&(r=V.nextNode(),o++)}return V.currentNode=M,s}p(t){let e=0;for(const i of this._$AV)void 0!==i&&(void 0!==i.strings?(i._$AI(t,i,e),e+=i.strings.length-2):i._$AI(t[e])),e++}}class X{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,i,s){this.type=2,this._$AH=B,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=i,this.options=s,this._$Cv=s?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode;const e=this._$AM;return void 0!==e&&11===t?.nodeType&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=Z(this,t,e),R(t)?t===B||null==t||""===t?(this._$AH!==B&&this._$AR(),this._$AH=B):t!==this._$AH&&t!==J&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):(t=>O(t)||"function"==typeof t?.[Symbol.iterator])(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==B&&R(this._$AH)?this._$AA.nextSibling.data=t:this.T(M.createTextNode(t)),this._$AH=t}$(t){const{values:e,_$litType$:i}=t,s="number"==typeof i?this._$AC(t):(void 0===i.el&&(i.el=Y.createElement(q(i.h,i.h[0]),this.options)),i);if(this._$AH?._$AD===s)this._$AH.p(e);else{const t=new Q(s,this),i=t.u(this.options);t.p(e),this.T(i),this._$AH=t}}_$AC(t){let e=W.get(t.strings);return void 0===e&&W.set(t.strings,e=new Y(t)),e}k(t){O(this._$AH)||(this._$AH=[],this._$AR());const e=this._$AH;let i,s=0;for(const r of t)s===e.length?e.push(i=new X(this.O(N()),this.O(N()),this,this.options)):i=e[s],i._$AI(r),s++;s<e.length&&(this._$AR(i&&i._$AB.nextSibling,s),e.length=s)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){const e=E(t).nextSibling;E(t).remove(),t=e}}setConnected(t){void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t))}}class tt{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,i,s,r){this.type=1,this._$AH=B,this._$AN=void 0,this.element=t,this.name=e,this._$AM=s,this.options=r,i.length>2||""!==i[0]||""!==i[1]?(this._$AH=Array(i.length-1).fill(new String),this.strings=i):this._$AH=B}_$AI(t,e=this,i,s){const r=this.strings;let o=!1;if(void 0===r)t=Z(this,t,e,0),o=!R(t)||t!==this._$AH&&t!==J,o&&(this._$AH=t);else{const s=t;let n,a;for(t=r[0],n=0;n<r.length-1;n++)a=Z(this,s[i+n],e,n),a===J&&(a=this._$AH[n]),o||=!R(a)||a!==this._$AH[n],a===B?t=B:t!==B&&(t+=(a??"")+r[n+1]),this._$AH[n]=a}o&&!s&&this.j(t)}j(t){t===B?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}}class et extends tt{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===B?void 0:t}}class it extends tt{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==B)}}class st extends tt{constructor(t,e,i,s,r){super(t,e,i,s,r),this.type=5}_$AI(t,e=this){if((t=Z(this,t,e,0)??B)===J)return;const i=this._$AH,s=t===B&&i!==B||t.capture!==i.capture||t.once!==i.once||t.passive!==i.passive,r=t!==B&&(i===B||s);s&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}}class rt{constructor(t,e,i){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=i}get _$AU(){return this._$AM._$AU}_$AI(t){Z(this,t)}}const ot=x.litHtmlPolyfillSupport;ot?.(Y,X),(x.litHtmlVersions??=[]).push("3.3.3");const nt=globalThis;
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */class at extends b{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=((t,e,i)=>{const s=i?.renderBefore??e;let r=s._$litPart$;if(void 0===r){const t=i?.renderBefore??null;s._$litPart$=r=new X(e.insertBefore(N(),t),t,void 0,i??{})}return r._$AI(t),r})(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return J}}at._$litElement$=!0,at.finalized=!0,nt.litElementHydrateSupport?.({LitElement:at});const ct=nt.litElementPolyfillSupport;ct?.({LitElement:at}),(nt.litElementVersions??=[]).push("4.2.2");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const lt={attribute:!0,type:String,converter:y,reflect:!1,hasChanged:$},dt=(t=lt,e,i)=>{const{kind:s,metadata:r}=i;let o=globalThis.litPropertyMetadata.get(r);if(void 0===o&&globalThis.litPropertyMetadata.set(r,o=new Map),"setter"===s&&((t=Object.create(t)).wrapped=!0),o.set(i.name,t),"accessor"===s){const{name:s}=i;return{set(i){const r=e.get.call(this);e.set.call(this,i),this.requestUpdate(s,r,t,!0,i)},init(e){return void 0!==e&&this.C(s,void 0,t,e),e}}}if("setter"===s){const{name:s}=i;return function(i){const r=this[s];e.call(this,i),this.requestUpdate(s,r,t,!0,i)}}throw Error("Unsupported decorator location: "+s)};function mt(t){return(e,i)=>"object"==typeof i?dt(t,e,i):((t,e,i)=>{const s=e.hasOwnProperty(i);return e.constructor.createProperty(i,t),s?Object.getOwnPropertyDescriptor(e,i):void 0})(t,e,i)}
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */function ht(t){return mt({...t,state:!0,attribute:!1})}const pt=Object.freeze({set_active_spool_service:"",spool_entity_template:"sensor.spoolman_spool_{id}",filament_name_entity_template:"sensor.spoolman_spool_{id}_filament_name",color_hex_entity_template:"sensor.spoolman_spool_{id}_color_hex",id_entity_template:"sensor.spoolman_spool_{id}_id"}),ut=new Set(["en","ru","uk"]);function _t(t){return{...t,...t.service_data?{service_data:{...t.service_data}}:{},...t.target?{target:{...t.target}}:{}}}function ft(t){const e=String(t.language??"en"),i=ut.has(e)?e:"en",s="auto"===t.camera_view?"auto":"live";return{...t,type:String(t.type??"custom:printer-status-card"),name:String(t.name??"3D Printer"),language:i,show_camera:!1!==t.show_camera,camera_view:s,filament_present_state:String(t.filament_present_state??"on"),filament_missing_state:String(t.filament_missing_state??"off"),entities:{...t.entities??{}},spoolman:{...pt,...t.spoolman??{}},macros:Array.isArray(t.macros)?t.macros.map(_t):[]}}function gt(){return ft({type:"custom:printer-status-card"})}const vt={en:"en-GB",ru:"ru-RU",uk:"uk-UA"},yt={en:"Tomorrow, at {time}",ru:"Завтра, в {time}",uk:"Завтра, о {time}"},$t={s:1,sec:1,secs:1,second:1,seconds:1,min:60,mins:60,minute:60,minutes:60,h:3600,hr:3600,hrs:3600,hour:3600,hours:3600};function wt(t){if(!t)return;const e=String(t.state??"").trim();if(!e)return;if(e.includes(":"))return function(t){const e=t.split(":");if(2!==e.length&&3!==e.length)return;if(!e.every(t=>/^\d+$/.test(t)))return;const i=e.map(Number),s=i[i.length-1],r=i[i.length-2];if(s>59||r>59)return;const o=3600*(3===e.length?i[0]:0)+60*r+s;return o>0?o:void 0}(e);const i=Number(e);if(!Number.isFinite(i)||i<=0)return;const s=String(t.attributes?.unit_of_measurement??"").trim().toLowerCase(),r=$t[s];return r?i*r:void 0}function bt(t){return Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())}const xt={en:{common:{name:"3D printer status card",description:"A configurable Home Assistant status card for 3D printers"},status:{poweredOff:"POWERED OFF",offline:"OFFLINE",ready:"READY",printing:"PRINTING",completed:"COMPLETED",paused:"PAUSED",error:"ERROR",idle:"IDLE"},card:{file:"File",remainingTime:"Time remaining",finishesAt:"Finishes at",elapsedTime:"Print duration",filamentUsed:"Filament used",bedTemperature:"Bed temperature",extruderTemperature:"Extruder temperature",totalPrintTime:"Total print time",filament:"Filament",powerNow:"Consumption",present:"Present",missing:"Missing",filamentPresent:"Filament present",filamentMissing:"Filament missing",spoolman:"Current filament",activeSpool:"Active spool",remaining:"Remaining",spoolSelection:"Spool selection",macros:"Macros"},warning:{cameraUnavailable:"Camera card unavailable",missingEntity:"Entity not found"},editor:{general:"General",printerEntities:"Printer entities",power:"Power and availability",powerHelp:"When configured, the card expands only while the switch is on, consumption is above zero, and the printer status is online.",filamentStates:"Filament states",spoolman:"Spoolman",macros:"Macros",macro:"Macro",invalidJson:"Enter a valid JSON object",noMacros:"No macros configured"},fields:{language:"Language",name:"Name",showCamera:"Show camera",cameraView:"Camera view",status:"Printer status / online check",remainingTime:"Remaining time",elapsedTime:"Print duration",filamentUsed:"Filament used",bedTemperature:"Bed temperature",extruderTemperature:"Extruder temperature",totalPrintTime:"Total print time",filamentPresent:"Filament sensor",filename:"Filename",camera:"Camera",powerSwitch:"Plug / breaker switch",powerNow:"Consumption",filamentPresentState:"Present state",filamentMissingState:"Missing state",spoolId:"Active spool ID sensor",setActiveSpoolService:"Set active spool service",spoolEntityTemplate:"Spool entity template",filamentNameEntityTemplate:"Filament name entity template",colorHexEntityTemplate:"Color entity template",idEntityTemplate:"ID entity template",macroName:"Name",macroKind:"Type",macroEntity:"Entity",macroService:"Service (domain.service)",serviceData:"Service data (JSON)",target:"Target (JSON)"},options:{english:"English",russian:"Русский",ukrainian:"Українська",live:"Live",auto:"Auto",entity:"Entity",service:"Service"},actions:{togglePower:"Toggle power",addMacro:"Add macro",removeMacro:"Remove macro",moveUp:"Move up",moveDown:"Move down"},fallback:{englishOnly:"English fallback"}},ru:{common:{name:"3D printer status card",description:"Настраиваемая карточка состояния 3D-принтера для Home Assistant"},status:{poweredOff:"ВЫКЛЮЧЕН",offline:"ОФФЛАЙН",ready:"ГОТОВ",printing:"ПЕЧАТЬ",completed:"ЗАВЕРШЕНО",paused:"ПАУЗА",error:"ОШИБКА",idle:"ОЖИДАНИЕ"},card:{file:"Файл",remainingTime:"Осталось до конца",finishesAt:"Завершение",elapsedTime:"Длительность печати",filamentUsed:"Использовано филамента",bedTemperature:"Температура стола",extruderTemperature:"Температура экструдера",totalPrintTime:"Общее время печати",filament:"Филамент",powerNow:"Потребление",present:"Есть",missing:"Нету",filamentPresent:"Филамент есть",filamentMissing:"Филамент отсутствует",spoolman:"Текущий филамент",activeSpool:"Активная катушка",remaining:"Остаток",spoolSelection:"Выбор катушки",macros:"Макросы"},warning:{cameraUnavailable:"Карточка камеры недоступна",missingEntity:"Сущность не найдена"},editor:{general:"Основное",printerEntities:"Сущности принтера",power:"Питание и доступность",powerHelp:"Если проверки настроены, карточка разворачивается только при включённой розетке, потреблении выше нуля и доступном статусе принтера.",filamentStates:"Состояния филамента",spoolman:"Spoolman",macros:"Макросы",macro:"Макрос",invalidJson:"Введите корректный JSON-объект",noMacros:"Макросы не настроены"},fields:{language:"Язык",name:"Название",showCamera:"Показывать камеру",cameraView:"Режим камеры",status:"Статус принтера / проверка онлайн",remainingTime:"Оставшееся время",elapsedTime:"Длительность печати",filamentUsed:"Использовано филамента",bedTemperature:"Температура стола",extruderTemperature:"Температура экструдера",totalPrintTime:"Общее время печати",filamentPresent:"Датчик филамента",filename:"Имя файла",camera:"Камера",powerSwitch:"Розетка / автомат",powerNow:"Потребление",filamentPresentState:"Состояние «есть»",filamentMissingState:"Состояние «нет»",spoolId:"Сенсор ID активной катушки",setActiveSpoolService:"Сервис выбора активной катушки",spoolEntityTemplate:"Шаблон сущности катушки",filamentNameEntityTemplate:"Шаблон названия филамента",colorHexEntityTemplate:"Шаблон сущности цвета",idEntityTemplate:"Шаблон сущности ID",macroName:"Название",macroKind:"Тип",macroEntity:"Сущность",macroService:"Сервис (domain.service)",serviceData:"Данные сервиса (JSON)",target:"Цель (JSON)"},options:{english:"English",russian:"Русский",ukrainian:"Українська",live:"Вживую",auto:"Авто",entity:"Сущность",service:"Сервис"},actions:{togglePower:"Переключить питание",addMacro:"Добавить макрос",removeMacro:"Удалить макрос",moveUp:"Поднять",moveDown:"Опустить"}},uk:{common:{name:"3D printer status card",description:"Налаштовувана картка стану 3D-принтера для Home Assistant"},status:{poweredOff:"ВИМКНЕНО",offline:"ОФЛАЙН",ready:"ГОТОВИЙ",printing:"ДРУК",completed:"ЗАВЕРШЕНО",paused:"ПАУЗА",error:"ПОМИЛКА",idle:"ОЧІКУВАННЯ"},card:{file:"Файл",remainingTime:"Залишилося до завершення",finishesAt:"Завершення",elapsedTime:"Тривалість друку",filamentUsed:"Використано філаменту",bedTemperature:"Температура столу",extruderTemperature:"Температура екструдера",totalPrintTime:"Загальний час друку",filament:"Філамент",powerNow:"Споживання",present:"Є",missing:"Немає",filamentPresent:"Філамент є",filamentMissing:"Філамент відсутній",spoolman:"Поточний філамент",activeSpool:"Активна котушка",remaining:"Залишок",spoolSelection:"Вибір котушки",macros:"Макроси"},warning:{cameraUnavailable:"Картка камери недоступна",missingEntity:"Сутність не знайдено"},editor:{general:"Основне",printerEntities:"Сутності принтера",power:"Живлення та доступність",powerHelp:"Якщо перевірки налаштовані, картка розгортається лише за ввімкненої розетки, споживання вище нуля та доступного статусу принтера.",filamentStates:"Стани філаменту",spoolman:"Spoolman",macros:"Макроси",macro:"Макрос",invalidJson:"Введіть коректний JSON-об’єкт",noMacros:"Макроси не налаштовані"},fields:{language:"Мова",name:"Назва",showCamera:"Показувати камеру",cameraView:"Режим камери",status:"Статус принтера / перевірка онлайн",remainingTime:"Час, що залишився",elapsedTime:"Тривалість друку",filamentUsed:"Використано філаменту",bedTemperature:"Температура столу",extruderTemperature:"Температура екструдера",totalPrintTime:"Загальний час друку",filamentPresent:"Датчик філаменту",filename:"Назва файлу",camera:"Камера",powerSwitch:"Розетка / автомат",powerNow:"Споживання",filamentPresentState:"Стан «є»",filamentMissingState:"Стан «немає»",spoolId:"Сенсор ID активної котушки",setActiveSpoolService:"Сервіс вибору активної котушки",spoolEntityTemplate:"Шаблон сутності котушки",filamentNameEntityTemplate:"Шаблон назви філаменту",colorHexEntityTemplate:"Шаблон сутності кольору",idEntityTemplate:"Шаблон сутності ID",macroName:"Назва",macroKind:"Тип",macroEntity:"Сутність",macroService:"Сервіс (domain.service)",serviceData:"Дані сервісу (JSON)",target:"Ціль (JSON)"},options:{english:"English",russian:"Русский",ukrainian:"Українська",live:"Наживо",auto:"Авто",entity:"Сутність",service:"Сервіс"},actions:{togglePower:"Перемкнути живлення",addMacro:"Додати макрос",removeMacro:"Видалити макрос",moveUp:"Підняти",moveDown:"Опустити"}}};function Et(t,e){const i=e.split(".").reduce((t,e)=>{if(t&&"object"==typeof t)return t[e]},t);return"string"==typeof i?i:void 0}function St(t,e){return Et(xt["ru"===t||"uk"===t||"en"===t?t:"en"],e)??Et(xt.en,e)??e}const At=new Set(["","unknown","unavailable","none","null","offline"]);function Ct(t){return String(t?.state??"").trim().toLowerCase()}function kt(t){return At.has(Ct(t))}function Tt(t,e){const i=t.entities.power_switch;if(i){const t=Ct(e[i]);if(At.has(t))return"offline";if("on"!==t)return"powered_off"}const s=t.entities.power_now;if(s){const t=Ct(e[s]);if(At.has(t))return"offline";const i=Number(t);if(!Number.isFinite(i))return"offline";if(i<=0)return"powered_off"}const r=t.entities.status;return r&&kt(e[r])?"offline":"expanded"}const Pt=new Set(["","unknown","unavailable","none","null","offline"]);function Mt(t){return Pt.has(String(t?.state??"").trim().toLowerCase())}function Nt(t){const e=t.trim().match(/^([a-z0-9_]+)\.([a-z0-9_]+)$/i);return e?{domain:e[1],service:e[2]}:void 0}const Rt={printing:{cssClass:"printing",translationKey:"status.printing"},busy:{cssClass:"printing",translationKey:"status.printing"},complete:{cssClass:"complete",translationKey:"status.completed"},completed:{cssClass:"complete",translationKey:"status.completed"},finished:{cssClass:"complete",translationKey:"status.completed"},paused:{cssClass:"paused",translationKey:"status.paused"},pause:{cssClass:"paused",translationKey:"status.paused"},error:{cssClass:"error",translationKey:"status.error"},shutdown:{cssClass:"error",translationKey:"status.error"},idle:{cssClass:"idle",translationKey:"status.idle"}};const Ot=n`
+  :host {
+    display: block;
+  }
+
+  ha-card {
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid var(--ha-card-border-color, var(--divider-color));
+    border-radius: var(--ha-card-border-radius, 12px);
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .header.compact {
+    gap: 6px;
+    margin-bottom: 0;
+  }
+
+  .header.compact .title {
+    font-size: 17px;
+  }
+
+  .header.compact .status {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .header.compact .filament-indicator {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+
+  .header.compact .filament-indicator svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .title {
+    flex: 1;
+    min-width: 0;
+    color: var(--primary-text-color);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .status {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    padding: 4px 10px;
+    background: var(--secondary-background-color);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .status.clickable,
+  .row.clickable,
+  .camera-card,
+  .spoolman-block {
+    cursor: pointer;
+  }
+
+  .status.printing { color: var(--success-color, #4caf50); }
+  .status.complete { color: var(--info-color, #03a9f4); }
+  .status.paused { color: var(--warning-color, #ff9800); }
+  .status.error,
+  .status.offline { color: var(--error-color, #db4437); }
+  .status.powered-off,
+  .status.idle { color: var(--secondary-text-color); }
+
+  .filament-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    padding: 2px;
+    border: 0;
+    color: var(--secondary-text-color);
+    background: transparent;
+    cursor: pointer;
+    transition: transform 120ms ease, color 120ms ease;
+  }
+
+  .filament-indicator svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .filament-indicator.present {
+    color: var(--success-color, #4caf50);
+    filter: drop-shadow(0 0 4px rgb(76 175 80 / 80%));
+  }
+
+  .filament-indicator.missing {
+    color: var(--error-color, #db4437);
+    filter: drop-shadow(0 0 4px rgb(219 68 55 / 85%));
+  }
+
+  .filament-indicator:hover {
+    transform: scale(1.08);
+  }
+
+  .filament-indicator:focus-visible {
+    border-radius: 5px;
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .power-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    color: var(--secondary-text-color);
+    background: var(--secondary-background-color);
+    cursor: pointer;
+    --mdc-icon-size: 19px;
+  }
+
+  .power-button.on {
+    color: var(--text-primary-color, #fff);
+    background: var(--success-color, #4caf50);
+  }
+
+  .power-button:hover,
+  .macro-button:hover {
+    filter: brightness(1.1);
+  }
+
+  .file {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--secondary-background-color);
+    color: var(--primary-text-color);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .camera-card {
+    min-height: 120px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #111;
+  }
+
+  .camera-card > * {
+    display: block;
+  }
+
+  .camera-warning,
+  .spoolman-hint {
+    padding: 10px 12px;
+    color: var(--warning-color, #ff9800);
+    background: var(--secondary-background-color);
+    font-size: 12px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .row,
+  .spool-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 36px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--divider-color);
+  }
+
+  .row.clickable:hover,
+  .spoolman-block:hover {
+    margin: 0 -4px;
+    padding-right: 4px;
+    padding-left: 4px;
+    border-radius: 8px;
+    background: var(--secondary-background-color);
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--secondary-text-color);
+    font-size: 13px;
+  }
+
+  .label ha-icon {
+    flex: 0 0 auto;
+    --mdc-icon-size: 18px;
+  }
+
+  .value {
+    color: var(--primary-text-color);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .spoolman-block {
+    display: block;
+    padding: 10px 0;
+  }
+
+  .spool-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    justify-content: initial;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .spoolman-title,
+  .spoolman-remaining {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .spoolman-filament {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 6px;
+    color: var(--primary-text-color);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .filament-color {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    border: 1px solid var(--divider-color);
+    border-radius: 999px;
+  }
+
+  .spoolman-remaining {
+    color: var(--secondary-text-color);
+    font-size: 13px;
+  }
+
+  .spool-select {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border: 1px solid var(--divider-color);
+    border-radius: 8px;
+    color: var(--primary-text-color);
+    background: var(--card-background-color, var(--ha-card-background));
+  }
+
+  .macros {
+    margin-top: 14px;
+  }
+
+  .section-title {
+    margin-bottom: 8px;
+    color: var(--secondary-text-color);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .macro-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .macro-button {
+    min-height: 38px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    color: var(--primary-text-color);
+    background: var(--secondary-background-color);
+    cursor: pointer;
+  }
+
+  @media (max-width: 360px) {
+    .card { padding: 12px; }
+    .macro-grid { grid-template-columns: 1fr; }
+  }
+`;class Ut extends at{constructor(){super(...arguments),this._config=gt(),this._cameraError=!1,this._togglePower=async()=>{const t=this._config.entities.power_switch;if(t&&this._entity(t))try{await this.hass.callService("homeassistant","toggle",{},{entity_id:t})}catch(t){this._logError(t)}},this._selectSpool=async t=>{const e=t.currentTarget,i=Nt(this._config.spoolman.set_active_spool_service),s=function(t){if(/^\d+$/.test(t))return{spool_id:Number(t),useragent:"3D-printer-status-card"}}(e.value);if(i&&s)try{await this.hass.callService(i.domain,i.service,s)}catch(t){e.value=this._activeSpoolId()??"",this._logError(t)}}}setConfig(t){this._config=ft(t),this._cameraCard=void 0,this._cameraEntity=void 0,this._cameraFailedEntity=void 0,this._cameraError=!1}static getStubConfig(){return gt()}static async getConfigElement(){return await Promise.resolve().then(function(){return Lt}),document.createElement("printer-status-card-editor")}getCardSize(){return this.hass?"expanded"===Tt(this._config,this.hass.states)?this._config.show_camera?9:6:1:3}getGridOptions(){return{columns:12,min_columns:6}}render(){if(!this.hass)return K``;const t=Tt(this._config,this.hass.states),e="expanded"===t;return K`
+      <ha-card>
+        <div class="card">
+          ${this._renderHeader(t)}
+          ${e?this._renderExpanded():B}
+        </div>
+      </ha-card>
+    `}updated(){this._syncCameraCard()}_t(t){return St(this._config.language,t)}_entity(t){if(t&&this.hass)return this.hass.states[t]}_formatEntity(t){const e=this._entity(t);if(!e)return"—";const i=this.hass.formatEntityState;if(i)try{return i.call(this.hass,e)}catch{}const s=e.attributes?.unit_of_measurement;return`${e.state}${s?` ${s}`:""}`}_renderHeader(t){const e=this._config.entities.power_switch,i=this._entity(e),s=Boolean(e&&i&&!kt(i)),r=this._config.entities.status;let o,n;if("powered_off"===t)o=this._t("status.poweredOff"),n="powered-off";else if("offline"===t)o=this._t("status.offline"),n="offline";else if(r&&this._entity(r)){const t=this._entity(r).state,e=function(t){return Rt[t.trim().toLowerCase()]??{cssClass:"idle"}}(t);o=e.translationKey?this._t(e.translationKey):t,n=e.cssClass}else o=this._t("status.ready"),n="complete";return K`
+      <div class="header ${"expanded"===t?"":"compact"}">
+        ${s?K`
+          <button
+            class="power-button ${"on"===i?.state?"on":"off"}"
+            title=${this._t("actions.togglePower")}
+            aria-label=${this._t("actions.togglePower")}
+            @click=${this._togglePower}
+          >
+            <ha-icon icon="mdi:power"></ha-icon>
+          </button>
+        `:B}
+        <div class="title">${this._config.name}</div>
+        ${this._renderFilamentIndicator()}
+        <div
+          class="status ${n} ${r&&this._entity(r)?"clickable":""}"
+          @click=${()=>r&&this._fireMoreInfo(r)}
+        >${o}</div>
+      </div>
+    `}_renderFilamentIndicator(){const t=this._config.entities.filament_present,e=this._entity(t);if(!t||!e||kt(e))return B;const i=function(t,e,i){const s=t.trim().toLowerCase();if(s)return s===e.trim().toLowerCase()?"present":s===i.trim().toLowerCase()?"missing":void 0}(e.state,this._config.filament_present_state,this._config.filament_missing_state);if(!i)return B;const s=this._t("present"===i?"card.filamentPresent":"card.filamentMissing");return K`
+      <button
+        type="button"
+        class="filament-indicator ${i}"
+        title=${s}
+        aria-label=${s}
+        @click=${()=>this._fireMoreInfo(t)}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="12" r="6"></circle>
+          <circle cx="9" cy="12" r="2"></circle>
+          <path d="M15 12h2.4a2.6 2.6 0 0 1 2.6 2.6V18"></path>
+          <path d="M20 18v2"></path>
+        </svg>
+      </button>
+    `}_renderExpanded(){const t=this._config.entities.filename,e=this._entity(t),i=t&&e&&!kt(e);return K`
+      ${i?K`
+        <div class="file" @click=${()=>this._fireMoreInfo(t)}>
+          <strong>${this._t("card.file")}:</strong> ${e.state}
+        </div>
+      `:B}
+
+      ${this._renderCamera()}
+
+      <div class="grid">
+        ${this._renderFinishTime()}
+        ${this._renderEntityRow("elapsed_time","card.elapsedTime","mdi:timer-outline")}
+        ${this._renderEntityRow("remaining_time","card.remainingTime","mdi:timer-sand")}
+        ${this._renderSpoolman()}
+        ${this._renderEntityRow("filament_used","card.filamentUsed","mdi:printer-3d-nozzle")}
+        ${this._renderSpoolSelect()}
+        ${this._renderEntityRow("bed_temp","card.bedTemperature","mdi:radiator")}
+        ${this._renderEntityRow("extruder_temp","card.extruderTemperature","mdi:thermometer")}
+        ${this._renderEntityRow("total_print_time","card.totalPrintTime","mdi:clock-outline")}
+        ${this._renderEntityRow("power_now","card.powerNow","mdi:flash")}
+      </div>
+
+      ${this._renderMacros()}
+    `}_renderEntityRow(t,e,i){const s=this._config.entities[t],r=this._entity(s);return s&&r&&!kt(r)?K`
+      <div class="row clickable" @click=${()=>this._fireMoreInfo(s)}>
+        <div class="label"><ha-icon icon=${i}></ha-icon><span>${this._t(e)}</span></div>
+        <div class="value">${this._formatEntity(s)}</div>
+      </div>
+    `:B}_renderFinishTime(){const t=this._config.entities.remaining_time,e=this._entity(t);if(!t||!e||kt(e))return B;const i=function(t,e,i=new Date){const s=wt(t);if(!s)return;const r=new Date(i.getTime()+1e3*s);if(!Number.isFinite(r.getTime()))return;const o=vt[e],n=new Intl.DateTimeFormat(o,{hour:"2-digit",minute:"2-digit",hour12:!1}).format(r),a=Math.round((bt(r)-bt(i))/864e5);return 0===a?n:1===a?yt[e].replace("{time}",n):`${new Intl.DateTimeFormat(o,{day:"numeric",month:"long"}).format(r)}, ${n}`}(e,this._config.language);return i?K`
+      <div class="row clickable" @click=${()=>this._fireMoreInfo(t)}>
+        <div class="label">
+          <ha-icon icon="mdi:clock-end"></ha-icon>
+          <span>${this._t("card.finishesAt")}</span>
+        </div>
+        <div class="value">${i}</div>
+      </div>
+    `:B}_renderCamera(){const t=this._config.entities.camera,e=this._entity(t);return this._config.show_camera&&t&&e&&!kt(e)?this._cameraError?K`<div class="camera-warning">${this._t("warning.cameraUnavailable")}</div>`:K`<div class="camera-card" data-camera-host></div>`:B}async _syncCameraCard(){if(!this.hass)return;const t=Tt(this._config,this.hass.states),e=this._config.entities.camera,i=this._entity(e),s=this.renderRoot.querySelector("[data-camera-host]");if("expanded"===t&&this._config.show_camera&&e&&i&&!kt(i)&&s&&this._cameraFailedEntity!==e)try{if(!this._cameraCard||this._cameraEntity!==e){const t={type:"picture-entity",entity:e,camera_view:this._config.camera_view,show_name:!1,show_state:!1,tap_action:{action:"more-info"}};if(window.loadCardHelpers){const e=await window.loadCardHelpers();this._cameraCard=e.createCardElement(t)}else{const e=document.createElement("hui-picture-entity-card");e.setConfig(t),this._cameraCard=e}this._cameraEntity=e}if(!s.isConnected||this._config.entities.camera!==e||"expanded"!==Tt(this._config,this.hass.states))return;this._cameraCard.hass=this.hass,s.contains(this._cameraCard)||s.replaceChildren(this._cameraCard)}catch(t){this._cameraFailedEntity=e,this._cameraError=!0,this._logError(t)}}_activeSpoolId(){const t=this._entity(this._config.entities.spool_id);if(t&&!kt(t))return t.state.match(/\d+/)?.[0]}_spoolEntityId(t){const e=this._activeSpoolId();return e?t.replaceAll("{id}",e):void 0}_normalizeHexColor(t){if("string"!=typeof t)return;const e=t.trim().startsWith("#")?t.trim():`#${t.trim()}`;return/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(e)?e:void 0}_spoolDetails(){const t=this._activeSpoolId();if(!t)return;const e=this._spoolEntityId(this._config.spoolman.spool_entity_template),i=this._spoolEntityId(this._config.spoolman.filament_name_entity_template),s=this._spoolEntityId(this._config.spoolman.color_hex_entity_template),r=this._entity(e),o=this._entity(i),n=this._entity(s),a=r?.attributes??{};return{spoolId:t,mainId:e,nameId:i,colorId:s,name:o&&!kt(o)?o.state:String(a.filament_name??a.name??a.material??a.filament_material??a.vendor??"—"),color:this._normalizeHexColor(n&&!kt(n)?n.state:a.color_hex??a.filament_color_hex??a.color??a.filament_color),remaining:r&&!kt(r)?this._formatEntity(e):String(a.remaining_weight??a.remaining_length??a.weight??a.used_weight??"—"),mainEntity:r,nameEntity:o}}_renderSpoolman(){const t=this._config.entities.spool_id,e=this._entity(t);if(!t||!e||kt(e))return B;const i=this._spoolDetails();if(!i)return K`
+        <div class="row clickable" @click=${()=>this._fireMoreInfo(t)}>
+          <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t("card.activeSpool")}</span></div>
+          <div class="value">—</div>
+        </div>
+      `;const s=i.mainId&&i.mainEntity?i.mainId:t;return K`
+      <div class="spoolman-block" @click=${()=>this._fireMoreInfo(s)}>
+        <div class="spoolman-title">
+          <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t("card.spoolman")}</span></div>
+          <div class="value">ID ${i.spoolId}</div>
+        </div>
+        <div class="spoolman-filament">
+          ${i.color?K`<span class="filament-color" style=${`background:${i.color}`}></span>`:B}
+          <span>${i.name}</span>
+        </div>
+        <div class="spoolman-remaining">
+          <span>${this._t("card.remaining")}</span>
+          <strong>${i.remaining}</strong>
+        </div>
+        ${i.mainEntity&&i.nameEntity?B:K`
+          <div class="spoolman-hint">
+            ${this._t("warning.missingEntity")}:
+            ${i.mainEntity?i.nameId:i.mainId}
+          </div>
+        `}
+      </div>
+    `}_renderSpoolSelect(){if(!Nt(this._config.spoolman.set_active_spool_service))return B;const t=function(t,e,i){if(!e.includes("{id}"))return[];const[s,r]=e.split("{id}",2),o=[];for(const[e,n]of Object.entries(t)){if(!e.startsWith(s)||!e.endsWith(r))continue;const a=r.length>0?-r.length:void 0,c=e.slice(s.length,a);if(!/^\d+$/.test(c))continue;if(!n||Mt(n)||!0===n.attributes?.archived)continue;const l=t[i.replaceAll("{id}",c)],d=n.attributes??{},m=l&&!Mt(l)?l.state:String(d.filament_name??d.name??d.material??`Spool ${c}`);o.push({id:c,label:`ID ${c} · ${m}`})}return o.sort((t,e)=>Number(t.id)-Number(e.id))}(this.hass.states,this._config.spoolman.spool_entity_template,this._config.spoolman.filament_name_entity_template);if(0===t.length)return B;const e=this._activeSpoolId()??"";return K`
+      <div class="spool-block">
+        <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t("card.spoolSelection")}</span></div>
+        <select class="spool-select" @change=${this._selectSpool}>
+          ${e?B:K`<option value="" disabled .selected=${!0}>—</option>`}
+          ${t.map(t=>{return K`
+            <option
+              .value=${t.id}
+              .selected=${i=t.id,s=e||void 0,void 0!==s&&i===s}
+            >${t.label}</option>
+          `;var i,s})}
+        </select>
+      </div>
+    `}_renderMacros(){return 0===this._config.macros.length?B:K`
+      <section class="macros">
+        <div class="section-title">${this._t("card.macros")}</div>
+        <div class="macro-grid">
+          ${this._config.macros.map((t,e)=>K`
+            <button class="macro-button" @click=${()=>{this._callMacro(t)}}>
+              ${t.name||`Macro ${e+1}`}
+            </button>
+          `)}
+        </div>
+      </section>
+    `}_fireMoreInfo(t){t&&this.dispatchEvent(new CustomEvent("hass-more-info",{bubbles:!0,composed:!0,detail:{entityId:t}}))}async _callMacro(t){try{if(t.service){const[e,i]=t.service.split(".",2);if(!e||!i)return;return void await this.hass.callService(e,i,t.service_data??{},t.target??{})}if(!t.entity)return;const e=t.entity.split(".")[0];"button"===e?await this.hass.callService("button","press",{},{entity_id:t.entity}):"script"===e?await this.hass.callService("script","turn_on",{},{entity_id:t.entity}):await this.hass.callService(e,"turn_on",{},{entity_id:t.entity})}catch(t){this._logError(t)}}_logError(t){console.error("[3D printer status card]",t)}}function It(t){return JSON.stringify(t??{},null,2)}function Dt(t){return Object.keys(t).length>0}function Ht(t){return{name:t.name??"",kind:t.service?"service":"entity",entity:t.entity??"",service:t.service??"",service_data_text:It(t.service_data),target_text:It(t.target)}}function zt(t){try{const e=JSON.parse(t.trim()||"{}");if(!e||"object"!=typeof e||Array.isArray(e))return;return e}catch{return}}Ut.styles=Ot,t([mt({attribute:!1})],Ut.prototype,"hass",void 0),t([ht()],Ut.prototype,"_config",void 0),t([ht()],Ut.prototype,"_cameraError",void 0),customElements.get("printer-status-card")||customElements.define("printer-status-card",Ut),window.customCards=window.customCards??[],window.customCards.some(t=>"printer-status-card"===t.type)||window.customCards.push({type:"printer-status-card",name:"3D printer status card",description:St("en","common.description"),preview:!0,configurable:!0}),console.info("%c 3D PRINTER STATUS CARD %c v1.0.0 ","color:#111;background:#ff9800;font-weight:700;","color:#ff9800;background:#111;font-weight:700;");const jt={language:"fields.language",name:"fields.name",show_camera:"fields.showCamera",camera_view:"fields.cameraView",status:"fields.status",remaining_time:"fields.remainingTime",elapsed_time:"fields.elapsedTime",filament_used:"fields.filamentUsed",bed_temp:"fields.bedTemperature",extruder_temp:"fields.extruderTemperature",total_print_time:"fields.totalPrintTime",filament_present:"fields.filamentPresent",filename:"fields.filename",camera:"fields.camera",power_switch:"fields.powerSwitch",power_now:"fields.powerNow",filament_present_state:"fields.filamentPresentState",filament_missing_state:"fields.filamentMissingState",spool_id:"fields.spoolId",set_active_spool_service:"fields.setActiveSpoolService",spool_entity_template:"fields.spoolEntityTemplate",filament_name_entity_template:"fields.filamentNameEntityTemplate",color_hex_entity_template:"fields.colorHexEntityTemplate",id_entity_template:"fields.idEntityTemplate",macroName:"fields.macroName",macroKind:"fields.macroKind",macroEntity:"fields.macroEntity",macroService:"fields.macroService"};class Ft extends at{constructor(){super(...arguments),this._config=ft({type:"custom:printer-status-card"}),this._macroRows=[],this._macroErrors={},this._computeLabel=t=>{if(!t.name)return"";const e=jt[t.name];return e?this._t(e):t.name},this._generalChanged=t=>{this._emitConfig({...this._config,...t.detail.value})},this._entitiesChanged=t=>{this._emitConfig({...this._config,entities:{...this._config.entities,...t.detail.value}})},this._spoolmanChanged=t=>{const e=t.detail.value??{},{spool_id:i,...s}=e;this._emitConfig({...this._config,entities:{...this._config.entities,spool_id:i},spoolman:{...this._config.spoolman,...s}})},this._addMacro=()=>{this._macroRows=[...this._macroRows,{name:"",kind:"entity",entity:"",service:"",service_data_text:"{}",target_text:"{}"}]}}setConfig(t){this._config=ft(t),this._macroRows=this._config.macros.map(Ht),this._macroErrors={}}render(){return this.hass?K`
+      ${this._renderSection(this._t("editor.general"),{language:this._config.language,name:this._config.name,show_camera:this._config.show_camera,camera_view:this._config.camera_view},this._generalSchema(),this._generalChanged)}
+
+      ${this._renderSection(this._t("editor.printerEntities"),this._config.entities,this._printerEntitiesSchema(),this._entitiesChanged)}
+
+      ${this._renderSection(this._t("editor.power"),{power_switch:this._config.entities.power_switch,power_now:this._config.entities.power_now},this._powerSchema(),this._entitiesChanged,this._t("editor.powerHelp"))}
+
+      ${this._renderSection(this._t("editor.filamentStates"),{filament_present_state:this._config.filament_present_state,filament_missing_state:this._config.filament_missing_state},this._filamentSchema(),this._generalChanged)}
+
+      ${this._renderSection(this._t("editor.spoolman"),{spool_id:this._config.entities.spool_id,...this._config.spoolman},this._spoolmanSchema(),this._spoolmanChanged)}
+
+      ${this._renderMacroEditor()}
+    `:K``}_t(t){return St(this._config.language,t)}_renderSection(t,e,i,s,r){return K`
+      <section class="section">
+        <div class="section-title">${t}</div>
+        <div class="section-body">
+          ${r?K`<p class="help">${r}</p>`:B}
+          <ha-form
+            .hass=${this.hass}
+            .data=${e}
+            .schema=${i}
+            .computeLabel=${this._computeLabel}
+            @value-changed=${s}
+          ></ha-form>
+        </div>
+      </section>
+    `}_generalSchema(){return[{type:"grid",column_min_width:"180px",schema:[{name:"language",selector:{select:{mode:"dropdown",options:[{value:"en",label:this._t("options.english")},{value:"ru",label:this._t("options.russian")},{value:"uk",label:this._t("options.ukrainian")}]}}},{name:"name",selector:{text:{}}},{name:"show_camera",selector:{boolean:{}}},{name:"camera_view",selector:{select:{options:[{value:"live",label:this._t("options.live")},{value:"auto",label:this._t("options.auto")}]}}}]}]}_printerEntitiesSchema(){return[{type:"grid",column_min_width:"210px",schema:[{name:"status",selector:{entity:{}}},{name:"remaining_time",selector:{entity:{}}},{name:"elapsed_time",selector:{entity:{}}},{name:"filament_used",selector:{entity:{}}},{name:"bed_temp",selector:{entity:{}}},{name:"extruder_temp",selector:{entity:{}}},{name:"total_print_time",selector:{entity:{}}},{name:"filament_present",selector:{entity:{}}},{name:"filename",selector:{entity:{}}},{name:"camera",selector:{entity:{domain:"camera"}}}]}]}_powerSchema(){return[{type:"grid",column_min_width:"210px",schema:[{name:"power_switch",selector:{entity:{domain:"switch"}}},{name:"power_now",selector:{entity:{domain:"sensor"}}}]}]}_filamentSchema(){return[{type:"grid",column_min_width:"180px",schema:[{name:"filament_present_state",selector:{text:{}}},{name:"filament_missing_state",selector:{text:{}}}]}]}_spoolmanSchema(){return[{type:"grid",column_min_width:"220px",schema:[{name:"spool_id",selector:{entity:{}}},{name:"set_active_spool_service",selector:{text:{}}},{name:"spool_entity_template",selector:{text:{}}},{name:"filament_name_entity_template",selector:{text:{}}},{name:"color_hex_entity_template",selector:{text:{}}},{name:"id_entity_template",selector:{text:{}}}]}]}_emitConfig(t){this._config=ft(t),this.dispatchEvent(new CustomEvent("config-changed",{bubbles:!0,composed:!0,detail:{config:this._config}}))}_renderMacroEditor(){return K`
+      <section class="section">
+        <div class="section-title">${this._t("editor.macros")}</div>
+        <div class="section-body">
+          <div class="macro-list">
+            ${0===this._macroRows.length?K`<div class="empty">${this._t("editor.noMacros")}</div>`:this._macroRows.map((t,e)=>this._renderMacroRow(t,e))}
+          </div>
+          <button class="add-button" @click=${this._addMacro}>＋ ${this._t("actions.addMacro")}</button>
+        </div>
+      </section>
+    `}_renderMacroRow(t,e){const i="entity"===t.kind?{macroName:t.name,macroKind:t.kind,macroEntity:t.entity}:{macroName:t.name,macroKind:t.kind,macroService:t.service},s=[{type:"grid",column_min_width:"180px",schema:[{name:"macroName",selector:{text:{}}},{name:"macroKind",selector:{select:{options:[{value:"entity",label:this._t("options.entity")},{value:"service",label:this._t("options.service")}]}}},"entity"===t.kind?{name:"macroEntity",selector:{entity:{}}}:{name:"macroService",selector:{text:{}}}]}];return K`
+      <article class="macro-row">
+        <div class="macro-header">
+          <div class="macro-title">${this._t("editor.macro")} ${e+1}</div>
+          <div class="macro-actions">
+            <button
+              title=${this._t("actions.moveUp")}
+              ?disabled=${0===e}
+              @click=${()=>this._moveMacro(e,-1)}
+            >↑</button>
+            <button
+              title=${this._t("actions.moveDown")}
+              ?disabled=${e===this._macroRows.length-1}
+              @click=${()=>this._moveMacro(e,1)}
+            >↓</button>
+            <button title=${this._t("actions.removeMacro")} @click=${()=>this._removeMacro(e)}>×</button>
+          </div>
+        </div>
+
+        <ha-form
+          .hass=${this.hass}
+          .data=${i}
+          .schema=${s}
+          .computeLabel=${this._computeLabel}
+          @value-changed=${t=>this._macroBasicChanged(e,t)}
+        ></ha-form>
+
+        ${"service"===t.kind?K`
+          <div class="json-grid">
+            ${this._renderJsonField(e,"service_data_text","fields.serviceData",t.service_data_text)}
+            ${this._renderJsonField(e,"target_text","fields.target",t.target_text)}
+          </div>
+        `:B}
+      </article>
+    `}_renderJsonField(t,e,i,s){const r=`${t}.${e}`,o=!0===this._macroErrors[r];return K`
+      <div class="json-field">
+        <label>${this._t(i)}</label>
+        <textarea
+          class=${o?"invalid":""}
+          .value=${s}
+          @input=${i=>this._macroJsonChanged(t,e,i.currentTarget.value)}
+        ></textarea>
+        ${o?K`<div class="error">${this._t("editor.invalidJson")}</div>`:B}
+      </div>
+    `}_removeMacro(t){this._macroRows=this._macroRows.filter((e,i)=>i!==t),this._macroErrors={},this._commitMacros()}_moveMacro(t,e){const i=t+e;if(i<0||i>=this._macroRows.length)return;const s=[...this._macroRows];[s[t],s[i]]=[s[i],s[t]],this._macroRows=s,this._macroErrors={},this._commitMacros()}_macroBasicChanged(t,e){const i=e.detail.value??{},s=[...this._macroRows];s[t]={...s[t],name:String(i.macroName??""),kind:"service"===i.macroKind?"service":"entity",entity:String(i.macroEntity??s[t].entity??""),service:String(i.macroService??s[t].service??"")},this._macroRows=s,this._commitMacros()}_macroJsonChanged(t,e,i){const s=[...this._macroRows];s[t]={...s[t],[e]:i},this._macroRows=s,this._commitMacros()}_commitMacros(){const{macros:t,errors:e}=function(t){const e={},i=[];return t.forEach((t,s)=>{if("entity"===t.kind)return void(t.entity&&i.push({name:t.name||void 0,entity:t.entity}));const r=zt(t.service_data_text),o=zt(t.target_text);r||(e[`${s}.service_data_text`]=!0),o||(e[`${s}.target_text`]=!0),r&&o&&t.service&&i.push({name:t.name||void 0,service:t.service,...Dt(r)?{service_data:r}:{},...Dt(o)?{target:o}:{}})}),Object.keys(e).length>0?{macros:[],errors:e}:{macros:i,errors:e}}(this._macroRows);this._macroErrors=e,Object.keys(e).length>0||this._emitConfig({...this._config,macros:t})}}Ft.styles=n`
+    :host {
+      display: block;
+    }
+
+    .section {
+      margin: 10px 0;
+      border: 1px solid var(--divider-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .section-title {
+      padding: 12px 16px;
+      color: var(--primary-text-color);
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--secondary-background-color);
+    }
+
+    .section-body {
+      padding: 14px 16px;
+    }
+
+    .help {
+      margin: 0 0 12px;
+      color: var(--secondary-text-color);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .macro-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .macro-row {
+      padding: 12px;
+      border: 1px solid var(--divider-color);
+      border-radius: 10px;
+    }
+
+    .macro-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .macro-title {
+      color: var(--primary-text-color);
+      font-weight: 600;
+    }
+
+    .macro-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    button {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--divider-color);
+      border-radius: 8px;
+      color: var(--primary-text-color);
+      background: var(--secondary-background-color);
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .add-button {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .json-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .json-field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--secondary-text-color);
+      font-size: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 104px;
+      box-sizing: border-box;
+      resize: vertical;
+      padding: 9px;
+      border: 1px solid var(--divider-color);
+      border-radius: 8px;
+      color: var(--primary-text-color);
+      background: var(--card-background-color, var(--ha-card-background));
+      font-family: var(--code-font-family, monospace);
+      font-size: 12px;
+    }
+
+    textarea.invalid {
+      border-color: var(--error-color);
+    }
+
+    .error {
+      margin-top: 4px;
+      color: var(--error-color);
+      font-size: 12px;
+    }
+
+    .empty {
+      color: var(--secondary-text-color);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      .json-grid { grid-template-columns: 1fr; }
+    }
+  `,t([mt({attribute:!1})],Ft.prototype,"hass",void 0),t([mt({attribute:!1})],Ft.prototype,"lovelace",void 0),t([ht()],Ft.prototype,"_config",void 0),t([ht()],Ft.prototype,"_macroRows",void 0),t([ht()],Ft.prototype,"_macroErrors",void 0),customElements.get("printer-status-card-editor")||customElements.define("printer-status-card-editor",Ft);var Lt=Object.freeze({__proto__:null,PrinterStatusCardEditor:Ft});export{Ut as PrinterStatusCard};
