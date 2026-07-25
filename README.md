@@ -12,7 +12,8 @@ A configurable Home Assistant Lovelace card for monitoring and controlling a 3D 
 - Optional printer status entity used as an online health check
 - Camera with `live` or `auto` view
 - Calculated local print completion time derived from the remaining-time entity
-- Remaining time, elapsed time, temperatures, filament usage, filename, and total print time
+- Print duration, remaining time, completion time, and used filament shown only while printing or paused
+- Temperatures, filename, total print time, and current consumption
 - Optional dashboard-style filament indicator in the card header, with configurable sensor states and a localized hover tooltip
 - Optional Spoolman information and active-spool selection through a Home Assistant service
 - Entity and service macros
@@ -71,7 +72,7 @@ filament_present_state: "on"
 filament_missing_state: "off"
 
 entities:
-  # Optional online health check. If omitted, the printer is considered online.
+  # Optional online health check. It is also required to identify an active print job.
   status: sensor.printer_current_print_state
 
   # Also used to calculate the localized local completion time.
@@ -94,8 +95,11 @@ entities:
 
 spoolman:
   set_active_spool_service: rest_command.set_spool_id
+  get_active_spool_service: rest_command.get_active_spool_id
   spool_entity_template: sensor.spoolman_spool_{id}
   filament_name_entity_template: sensor.spoolman_spool_{id}_filament_name
+  filament_material_entity_template: sensor.spoolman_spool_{id}_filament_material
+  vendor_name_entity_template: sensor.spoolman_spool_{id}_vendor_name
   color_hex_entity_template: sensor.spoolman_spool_{id}_color_hex
   id_entity_template: sensor.spoolman_spool_{id}_id
 
@@ -174,7 +178,7 @@ All entity fields are optional.
 
 | Entity key | Purpose |
 |---|---|
-| `status` | Printer integration state and optional online check |
+| `status` | Printer integration state, optional online check, and active-print detector |
 | `remaining_time` | Estimated time remaining and calculated completion time |
 | `elapsed_time` | Current print duration |
 | `filament_used` | Filament consumed by the current job |
@@ -190,25 +194,32 @@ All entity fields are optional.
 
 Missing ordinary metric entities hide only their own rows. Missing configured `status`, `power_switch`, or `power_now` entities affect the card mode because they are availability checks.
 
+Completion time, print duration, remaining time, and used filament appear only when the configured `status` entity is `printing`, `busy`, `paused`, or `pause` (case-insensitive). They are hidden for every other state and when `status` is omitted.
+
 When `filament_present` matches `filament_present_state`, the header shows a glowing green spool icon. A match with `filament_missing_state` shows the same icon in red. Hovering the icon displays a localized explanation, and clicking it opens the sensor's Home Assistant more-info dialog. Missing, unavailable, or unrecognized sensor states hide the indicator.
 
-When `remaining_time` contains `HH:MM:SS`, `MM:SS`, or a numeric duration with seconds, minutes, or hours as its unit, the card also calculates the local completion time. Today shows only the time, tomorrow uses a localized “Tomorrow, at …” phrase, and later completions show a localized date and time. Invalid or non-positive durations hide only the calculated row.
+During an active or paused print, when `remaining_time` contains `HH:MM:SS`, `MM:SS`, or a numeric duration with seconds, minutes, or hours as its unit, the card also calculates the local completion time. Today shows only the time, tomorrow uses a localized “Tomorrow, at …” phrase, and later completions show a localized date and time. Invalid or non-positive durations hide only the calculated row.
 
 ### Spoolman configuration
 
 `{id}` is replaced with the numeric ID read from `entities.spool_id`.
 
-| Option | Default |
-|---|---|
+| Option | Default | Purpose |
+|---|---|---|
 | `set_active_spool_service` | empty | Home Assistant service called when a spool is selected, for example `rest_command.set_spool_id` |
-| `spool_entity_template` | `sensor.spoolman_spool_{id}` |
-| `filament_name_entity_template` | `sensor.spoolman_spool_{id}_filament_name` |
-| `color_hex_entity_template` | `sensor.spoolman_spool_{id}_color_hex` |
-| `id_entity_template` | `sensor.spoolman_spool_{id}_id` |
+| `get_active_spool_service` | empty | Optional response-returning service used to verify the active spool, for example `rest_command.get_active_spool_id` |
+| `spool_entity_template` | `sensor.spoolman_spool_{id}` | Main spool entity used for attributes and remaining amount |
+| `filament_name_entity_template` | `sensor.spoolman_spool_{id}_filament_name` | Filament name |
+| `filament_material_entity_template` | `sensor.spoolman_spool_{id}_filament_material` | Material shown in the selector |
+| `vendor_name_entity_template` | `sensor.spoolman_spool_{id}_vendor_name` | Manufacturer shown in the selector |
+| `color_hex_entity_template` | `sensor.spoolman_spool_{id}_color_hex` | Current-filament color |
+| `id_entity_template` | `sensor.spoolman_spool_{id}_id` | Discovery source; its state supplies the numeric spool ID |
 
-The main spool entity can provide remaining weight or length as its state or attributes. Filament name and color use their dedicated entities first and then fall back to common Spoolman attributes.
+The main spool entity can provide remaining weight or length as its state or attributes. Filament name, material, vendor, and color use their dedicated entities first and then fall back to common Spoolman attributes.
 
-The selection list is built automatically from available entities matching `spool_entity_template`. Archived and unavailable spools are omitted. If `set_active_spool_service` is empty or invalid, current-filament information remains available but the selection list is hidden.
+The selection list is built automatically from available entities matching `id_entity_template`, such as `sensor.spoolman_spool_18_id`. The numeric spool ID is read from the entity state; both ordinary Home Assistant string states and exported `raw`/`translated` state objects are supported. Archived and unavailable spools are omitted.
+
+Each option is displayed as `Name · Material · Manufacturer · 18`. The ID has no prefix and remains visible at the end even when a long label is shortened to fit the card. While selection and optional verification are running, the list is temporarily disabled and shows a progress indicator. If `set_active_spool_service` is empty or invalid, filament information remains available but the selection list is hidden.
 
 ### Moonraker active-spool setup
 
@@ -241,7 +252,13 @@ rest_command:
     content_type: "application/json"
 ```
 
-The card calls only `rest_command.set_spool_id`, passing numeric `spool_id` and `useragent`. Configure it as `spoolman.set_active_spool_service`. `get_active_spool_id` and `get_spool_info` are optional helpers for automations and troubleshooting.
+The card calls `rest_command.set_spool_id`, passing numeric `spool_id` and `useragent`. Configure it as `spoolman.set_active_spool_service`.
+
+For verified selection, configure `rest_command.get_active_spool_id` as `spoolman.get_active_spool_service`. After setting a spool, the card requests this action through Home Assistant with `return_response: true`, reads `content.spool_id`, and displays the ID confirmed by Moonraker. A failed or malformed verification rolls the card back to `entities.spool_id`. When the verification service is omitted, selection remains backward-compatible and waits for that entity to catch up.
+
+`get_spool_info` remains an optional helper for automations and troubleshooting.
+
+`entities.spool_id` must point to a Home Assistant entity that stays synchronized with Moonraker's active spool ID. The REST commands above do not create that entity by themselves; use the entity exposed by your printer integration, a REST sensor, or an automation that refreshes the value. The selector and filament block show the pending or Moonraker-confirmed spool immediately, then reconcile with this entity when it catches up.
 
 Moonraker's official API documentation: [Spoolman integration endpoints](https://moonraker.readthedocs.io/en/latest/external_api/integrations/#spoolman-apis).
 

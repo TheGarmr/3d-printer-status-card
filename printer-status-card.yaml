@@ -7,8 +7,11 @@ filament_present_state: "on"
 filament_missing_state: "off"
 spoolman:
   set_active_spool_service: rest_command.set_spool_id
+  get_active_spool_service: rest_command.get_active_spool_id
   spool_entity_template: sensor.spoolman_spool_{id}
   filament_name_entity_template: sensor.spoolman_spool_{id}_filament_name
+  filament_material_entity_template: sensor.spoolman_spool_{id}_filament_material
+  vendor_name_entity_template: sensor.spoolman_spool_{id}_vendor_name
   color_hex_entity_template: sensor.spoolman_spool_{id}_color_hex
   id_entity_template: sensor.spoolman_spool_{id}_id
 entities:

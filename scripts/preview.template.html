@@ -297,18 +297,51 @@
       'binary_sensor.printer_filament': state('on'),
       'sensor.printer_filename': state('calibration_cube_0.2mm.gcode'),
       'camera.printer': state('streaming'),
-      'sensor.printer_spool_id': state('7'),
-      'sensor.spoolman_spool_7': state('842', 'g', { remaining_weight: 842 }),
-      'sensor.spoolman_spool_7_filament_name': state('Polymaker PLA Pro'),
+      'sensor.printer_spool_id': state('unavailable'),
+      'sensor.spoolman_spool_7': state('842', 'g', {
+        remaining_weight: 842,
+        filament_name: 'PolyLite Pro Orange',
+        filament_material: 'PLA',
+        filament_vendor_name: 'Polymaker'
+      }),
+      'sensor.spoolman_spool_7_id': state('7', undefined, {
+        friendly_name: 'Polymaker PolyLite Pro Orange PLA ID'
+      }),
+      'sensor.spoolman_spool_7_filament_name': state('PolyLite Pro Orange'),
+      'sensor.spoolman_spool_7_filament_material': state('PLA'),
+      'sensor.spoolman_spool_7_vendor_name': state('Polymaker'),
       'sensor.spoolman_spool_7_color_hex': state('ff7a18'),
-      'sensor.spoolman_spool_12': state('635', 'g', { remaining_weight: 635 }),
-      'sensor.spoolman_spool_12_filament_name': state('PETG Black'),
+      'sensor.spoolman_spool_12': state('635', 'g', {
+        remaining_weight: 635,
+        filament_name: 'Galaxy Black',
+        filament_material: 'PETG',
+        filament_vendor_name: 'Prusament'
+      }),
+      'sensor.spoolman_spool_12_id': state('12', undefined, {
+        friendly_name: 'Prusament Galaxy Black PETG ID'
+      }),
+      'sensor.spoolman_spool_12_filament_name': state('Galaxy Black'),
+      'sensor.spoolman_spool_12_filament_material': state('PETG'),
+      'sensor.spoolman_spool_12_vendor_name': state('Prusament'),
       'sensor.spoolman_spool_12_color_hex': state('151515'),
-      'sensor.spoolman_spool_18': state('510', 'g', { remaining_weight: 510 }),
-      'sensor.spoolman_spool_18_filament_name': state('ABS Gray'),
+      'sensor.spoolman_spool_18': state('510', 'g', {
+        remaining_weight: 510,
+        filament_name: 'Деревянный',
+        filament_material: 'PLA',
+        filament_vendor_name: 'Creality'
+      }),
+      'sensor.spoolman_spool_18_id': state('18', undefined, {
+        friendly_name: 'Creality Деревянный PLA ID'
+      }),
+      'sensor.spoolman_spool_18_filament_name': state('Деревянный'),
+      'sensor.spoolman_spool_18_filament_material': state('PLA'),
+      'sensor.spoolman_spool_18_vendor_name': state('Creality'),
       'sensor.spoolman_spool_18_color_hex': state('8a8f98'),
       'button.printer_pause': state('unknown')
     };
+
+    let moonrakerSpoolId = 7;
+    let activeSpoolSyncTimer;
 
     const hass = {
       states,
@@ -327,10 +360,34 @@
           cards.forEach((card) => { card.hass = { ...hass, states: { ...states } }; });
         }
         if (domain === 'rest_command' && service === 'set_spool_id' && Number.isFinite(Number(data.spool_id))) {
-          states['sensor.printer_spool_id'] = state(String(data.spool_id));
-          cards.forEach((card) => { card.hass = { ...hass, states: { ...states } }; });
+          await new Promise((resolve) => setTimeout(resolve, 120));
+          moonrakerSpoolId = Number(data.spool_id);
+          clearTimeout(activeSpoolSyncTimer);
+          activeSpoolSyncTimer = setTimeout(() => {
+            states['sensor.printer_spool_id'] = state(String(moonrakerSpoolId));
+            cards.forEach((card) => { card.hass = { ...hass, states: { ...states } }; });
+          }, 1200);
         }
         showToast(`${domain}.${service}${entityId ? ` · ${entityId}` : ''}`);
+      },
+      async callWS(message) {
+        if (
+          message.type === 'call_service'
+          && message.domain === 'rest_command'
+          && message.service === 'get_active_spool_id'
+          && message.return_response === true
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 80));
+          return {
+            context: {},
+            response: {
+              status: 200,
+              content: { spool_id: moonrakerSpoolId },
+              headers: { 'content-type': 'application/json' }
+            }
+          };
+        }
+        throw new Error(`Unsupported preview WebSocket call: ${message.type}`);
       }
     };
 
@@ -348,7 +405,7 @@
       showToast(`more-info · ${event.detail.entityId}`);
     });
 
-    window.__preview = { hass, states, cards };
+    window.__preview = { hass, states, cards, state };
   </script>
 
   <script type="module">
@@ -356,7 +413,7 @@
   </script>
 
   <script type="module">
-    const { hass, cards } = window.__preview;
+    const { hass, cards, state } = window.__preview;
 
     await customElements.whenDefined('printer-status-card');
 
@@ -403,7 +460,8 @@
           spool_id: 'sensor.printer_spool_id'
         },
         spoolman: {
-          set_active_spool_service: 'rest_command.set_spool_id'
+          set_active_spool_service: 'rest_command.set_spool_id',
+          get_active_spool_service: 'rest_command.get_active_spool_id'
         },
         macros: [
           { name: 'Pause', entity: 'button.printer_pause' },
@@ -447,6 +505,13 @@
       applyPreviewLanguage(event.currentTarget.value);
     });
     applyPreviewLanguage(languageSelect.value);
+
+    setTimeout(() => {
+      window.__preview.states['sensor.printer_spool_id'] = state('7');
+      for (const card of cards) {
+        card.hass = { ...hass, states: { ...window.__preview.states } };
+      }
+    }, 250);
   </script>
 </body>
 </html>

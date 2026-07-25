@@ -23,20 +23,24 @@ test('localizes known printer states in every supported language', () => {
 
 test('uses the requested print and filament terminology', () => {
   assert.equal(localize('en', 'card.elapsedTime'), 'Print duration');
+  assert.equal(localize('en', 'card.spoolman'), 'Filament');
   assert.equal(localize('ru', 'card.elapsedTime'), 'Длительность печати');
-  assert.equal(localize('ru', 'card.spoolman'), 'Текущий филамент');
-  assert.equal(localize('ru', 'card.filamentUsed'), 'Использовано филамента');
+  assert.equal(localize('ru', 'card.spoolman'), 'Филамент');
+  assert.equal(localize('ru', 'card.filamentUsed'), 'Использовано');
   assert.equal(localize('ru', 'card.powerNow'), 'Потребление');
   assert.equal(localize('uk', 'card.elapsedTime'), 'Тривалість друку');
-  assert.equal(localize('uk', 'card.spoolman'), 'Поточний філамент');
-  assert.equal(localize('uk', 'card.filamentUsed'), 'Використано філаменту');
+  assert.equal(localize('uk', 'card.spoolman'), 'Філамент');
+  assert.equal(localize('uk', 'card.filamentUsed'), 'Використано');
   assert.equal(localize('uk', 'card.powerNow'), 'Споживання');
 });
 
 test('localizes the active spool service editor field', () => {
   assert.equal(localize('en', 'fields.setActiveSpoolService'), 'Set active spool service');
+  assert.equal(localize('en', 'fields.getActiveSpoolService'), 'Verify active spool service');
   assert.equal(localize('ru', 'fields.setActiveSpoolService'), 'Сервис выбора активной катушки');
+  assert.equal(localize('ru', 'fields.getActiveSpoolService'), 'Сервис проверки активной катушки');
   assert.equal(localize('uk', 'fields.setActiveSpoolService'), 'Сервіс вибору активної котушки');
+  assert.equal(localize('uk', 'fields.getActiveSpoolService'), 'Сервіс перевірки активної котушки');
 });
 
 test('localizes filament indicator tooltips', () => {
@@ -52,6 +56,18 @@ test('localizes filament indicator tooltips', () => {
       values,
     );
   }
+});
+
+test('localizes the printer section and revised spool labels', () => {
+  assert.equal(localize('en', 'card.filamentUsed'), 'Used');
+  assert.equal(localize('en', 'card.spoolSelection'), 'Choose spool');
+  assert.equal(localize('en', 'card.printer'), 'Printer');
+  assert.equal(localize('ru', 'card.filamentUsed'), 'Использовано');
+  assert.equal(localize('ru', 'card.spoolSelection'), 'Выбрать катушку');
+  assert.equal(localize('ru', 'card.printer'), 'Принтер');
+  assert.equal(localize('uk', 'card.filamentUsed'), 'Використано');
+  assert.equal(localize('uk', 'card.spoolSelection'), 'Вибрати котушку');
+  assert.equal(localize('uk', 'card.printer'), 'Принтер');
 });
 
 test('uses English when the configured language is unsupported', () => {

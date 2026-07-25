@@ -23,8 +23,11 @@ export interface PrinterEntities {
 
 export interface SpoolmanConfig {
   set_active_spool_service: string;
+  get_active_spool_service: string;
   spool_entity_template: string;
   filament_name_entity_template: string;
+  filament_material_entity_template: string;
+  vendor_name_entity_template: string;
   color_hex_entity_template: string;
   id_entity_template: string;
 }

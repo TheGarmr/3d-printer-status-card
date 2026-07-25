@@ -282,12 +282,46 @@ export const cardStyles = css`
   .spool-select {
     width: 100%;
     max-width: none;
+    min-width: 0;
     box-sizing: border-box;
     padding: 6px 8px;
     border: 1px solid var(--divider-color);
     border-radius: 8px;
+    overflow: hidden;
     color: var(--primary-text-color);
     background: var(--card-background-color, var(--ha-card-background));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .spool-select-shell {
+    position: relative;
+    min-width: 0;
+  }
+
+  .spool-select-shell.busy .spool-select {
+    padding-right: 34px;
+    cursor: wait;
+    opacity: .72;
+  }
+
+  .spool-select-spinner {
+    position: absolute;
+    top: 50%;
+    right: 11px;
+    width: 14px;
+    height: 14px;
+    box-sizing: border-box;
+    transform: translateY(-50%);
+    border: 2px solid color-mix(in srgb, var(--primary-text-color) 24%, transparent);
+    border-top-color: var(--primary-text-color);
+    border-radius: 999px;
+    animation: spool-select-spin .7s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes spool-select-spin {
+    to { transform: translateY(-50%) rotate(360deg); }
   }
 
   .macros {
@@ -299,6 +333,10 @@ export const cardStyles = css`
     color: var(--secondary-text-color);
     font-size: 13px;
     font-weight: 600;
+  }
+
+  .printer-section-title {
+    margin: 16px 0 2px;
   }
 
   .macro-grid {

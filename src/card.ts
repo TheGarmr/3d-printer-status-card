@@ -3,8 +3,15 @@ import type {
   LovelaceCard,
   LovelaceCardEditor,
 } from 'custom-card-helpers';
-import { html, LitElement, nothing, type TemplateResult } from 'lit';
+import {
+  html,
+  LitElement,
+  nothing,
+  type PropertyValues,
+  type TemplateResult,
+} from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { live } from 'lit/directives/live.js';
 
 import { getStubConfig, normalizeConfig } from './config';
 import { filamentIndicatorState } from './filament-indicator';
@@ -14,10 +21,12 @@ import { isOfflineState, resolveCardMode } from './power-state';
 import {
   buildSpoolServiceData,
   discoverSpoolOptions,
+  extractConfirmedSpoolId,
   isActiveSpoolOption,
   parseServiceReference,
+  resolveSpoolSelectionValue,
 } from './spool-selection';
-import { printerStatusDisplay } from './status-display';
+import { isActivePrintStatus, printerStatusDisplay } from './status-display';
 import { cardStyles } from './styles';
 import type {
   CardMode,
@@ -46,10 +55,13 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config = getStubConfig();
   @state() private _cameraError = false;
+  @state() private _pendingSpoolId?: string;
+  @state() private _spoolSelectionBusy = false;
 
   private _cameraCard?: LovelaceCard;
   private _cameraEntity?: string;
   private _cameraFailedEntity?: string;
+  private _selectionBaselineSpoolId?: string;
 
   public setConfig(config: PrinterStatusCardConfig): void {
     this._config = normalizeConfig(config);
@@ -57,6 +69,9 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     this._cameraEntity = undefined;
     this._cameraFailedEntity = undefined;
     this._cameraError = false;
+    this._pendingSpoolId = undefined;
+    this._spoolSelectionBusy = false;
+    this._selectionBaselineSpoolId = undefined;
   }
 
   public static getStubConfig(): PrinterStatusCardConfig {
@@ -93,6 +108,23 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
         </div>
       </ha-card>
     `;
+  }
+
+  protected willUpdate(changedProperties: PropertyValues<this>): void {
+    if (!changedProperties.has('hass') || !this._pendingSpoolId) return;
+
+    const activeSpoolId = this._activeSpoolId();
+    const selectionCaughtUp = activeSpoolId === this._pendingSpoolId;
+    const changedExternally = Boolean(
+      activeSpoolId
+      && this._selectionBaselineSpoolId
+      && activeSpoolId !== this._selectionBaselineSpoolId,
+    );
+
+    if (selectionCaughtUp || changedExternally) {
+      this._pendingSpoolId = undefined;
+      this._selectionBaselineSpoolId = undefined;
+    }
   }
 
   protected updated(): void {
@@ -209,6 +241,7 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     const filenameId = this._config.entities.filename;
     const filenameEntity = this._entity(filenameId);
     const showFilename = filenameId && filenameEntity && !isOfflineState(filenameEntity);
+    const activePrint = this._isActivePrintJob();
 
     return html`
       ${showFilename ? html`
@@ -220,12 +253,19 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
       ${this._renderCamera()}
 
       <div class="grid">
-        ${this._renderFinishTime()}
-        ${this._renderEntityRow('elapsed_time', 'card.elapsedTime', 'mdi:timer-outline')}
-        ${this._renderEntityRow('remaining_time', 'card.remainingTime', 'mdi:timer-sand')}
+        ${activePrint
+          ? this._renderEntityRow('elapsed_time', 'card.elapsedTime', 'mdi:timer-outline')
+          : nothing}
+        ${activePrint
+          ? this._renderEntityRow('remaining_time', 'card.remainingTime', 'mdi:timer-sand')
+          : nothing}
+        ${activePrint ? this._renderFinishTime() : nothing}
         ${this._renderSpoolman()}
-        ${this._renderEntityRow('filament_used', 'card.filamentUsed', 'mdi:printer-3d-nozzle')}
+        ${activePrint
+          ? this._renderEntityRow('filament_used', 'card.filamentUsed', 'mdi:printer-3d-nozzle')
+          : nothing}
         ${this._renderSpoolSelect()}
+        <div class="section-title printer-section-title">${this._t('card.printer')}</div>
         ${this._renderEntityRow('bed_temp', 'card.bedTemperature', 'mdi:radiator')}
         ${this._renderEntityRow('extruder_temp', 'card.extruderTemperature', 'mdi:thermometer')}
         ${this._renderEntityRow('total_print_time', 'card.totalPrintTime', 'mdi:clock-outline')}
@@ -234,6 +274,17 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
 
       ${this._renderMacros()}
     `;
+  }
+
+  private _isActivePrintJob(): boolean {
+    const statusId = this._config.entities.status;
+    const statusEntity = this._entity(statusId);
+    return Boolean(
+      statusId
+      && statusEntity
+      && !isOfflineState(statusEntity)
+      && isActivePrintStatus(statusEntity.state),
+    );
   }
 
   private _renderEntityRow(
@@ -348,8 +399,14 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     return spoolIdEntity.state.match(/\d+/)?.[0];
   }
 
-  private _spoolEntityId(template: string): string | undefined {
-    const spoolId = this._activeSpoolId();
+  private _displaySpoolId(): string | undefined {
+    return resolveSpoolSelectionValue(
+      this._activeSpoolId(),
+      this._pendingSpoolId,
+    ) || undefined;
+  }
+
+  private _spoolEntityId(template: string, spoolId = this._displaySpoolId()): string | undefined {
     return spoolId ? template.replaceAll('{id}', spoolId) : undefined;
   }
 
@@ -359,13 +416,18 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(withHash) ? withHash : undefined;
   }
 
-  private _spoolDetails() {
-    const spoolId = this._activeSpoolId();
+  private _spoolDetails(spoolId = this._displaySpoolId()) {
     if (!spoolId) return undefined;
 
-    const mainId = this._spoolEntityId(this._config.spoolman.spool_entity_template);
-    const nameId = this._spoolEntityId(this._config.spoolman.filament_name_entity_template);
-    const colorId = this._spoolEntityId(this._config.spoolman.color_hex_entity_template);
+    const mainId = this._spoolEntityId(this._config.spoolman.spool_entity_template, spoolId);
+    const nameId = this._spoolEntityId(
+      this._config.spoolman.filament_name_entity_template,
+      spoolId,
+    );
+    const colorId = this._spoolEntityId(
+      this._config.spoolman.color_hex_entity_template,
+      spoolId,
+    );
     const mainEntity = this._entity(mainId);
     const nameEntity = this._entity(nameId);
     const colorEntity = this._entity(colorId);
@@ -402,9 +464,11 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
   private _renderSpoolman(): TemplateResult | typeof nothing {
     const spoolIdEntityId = this._config.entities.spool_id;
     const spoolIdEntity = this._entity(spoolIdEntityId);
-    if (!spoolIdEntityId || !spoolIdEntity || isOfflineState(spoolIdEntity)) return nothing;
+    const displaySpoolId = this._displaySpoolId();
+    if (!spoolIdEntityId) return nothing;
+    if (!displaySpoolId && (!spoolIdEntity || isOfflineState(spoolIdEntity))) return nothing;
 
-    const details = this._spoolDetails();
+    const details = this._spoolDetails(displaySpoolId);
     if (!details) {
       return html`
         <div class="row clickable" @click=${() => this._fireMoreInfo(spoolIdEntityId)}>
@@ -446,26 +510,40 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     const options = discoverSpoolOptions(
       this.hass.states,
       this._config.spoolman.spool_entity_template,
+      this._config.spoolman.id_entity_template,
       this._config.spoolman.filament_name_entity_template,
+      this._config.spoolman.filament_material_entity_template,
+      this._config.spoolman.vendor_name_entity_template,
     );
     if (options.length === 0) return nothing;
 
-    const activeId = this._activeSpoolId() ?? '';
+    const selectedId = this._displaySpoolId() ?? '';
 
     return html`
       <div class="spool-block">
         <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t('card.spoolSelection')}</span></div>
-        <select class="spool-select" @change=${this._selectSpool}>
-          ${activeId
-            ? nothing
-            : html`<option value="" disabled .selected=${true}>—</option>`}
-          ${options.map((option) => html`
-            <option
-              .value=${option.id}
-              .selected=${isActiveSpoolOption(option.id, activeId || undefined)}
-            >${option.label}</option>
-          `)}
-        </select>
+        <div class="spool-select-shell ${this._spoolSelectionBusy ? 'busy' : ''}">
+          <select
+            class="spool-select"
+            .value=${live(selectedId)}
+            ?disabled=${this._spoolSelectionBusy}
+            aria-busy=${this._spoolSelectionBusy ? 'true' : 'false'}
+            @change=${this._selectSpool}
+          >
+            ${selectedId
+              ? nothing
+              : html`<option value="" disabled .selected=${true}>—</option>`}
+            ${options.map((option) => html`
+              <option
+                .value=${option.id}
+                .selected=${isActiveSpoolOption(option.id, selectedId || undefined)}
+              >${option.label}</option>
+            `)}
+          </select>
+          ${this._spoolSelectionBusy
+            ? html`<span class="spool-select-spinner" aria-hidden="true"></span>`
+            : nothing}
+        </div>
       </div>
     `;
   }
@@ -509,13 +587,53 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
   private _selectSpool = async (event: Event): Promise<void> => {
     const select = event.currentTarget as HTMLSelectElement;
     const service = parseServiceReference(this._config.spoolman.set_active_spool_service);
+    const verificationService = parseServiceReference(
+      this._config.spoolman.get_active_spool_service,
+    );
     const data = buildSpoolServiceData(select.value);
     if (!service || !data) return;
+
+    const requestedSpoolId = select.value;
+    this._selectionBaselineSpoolId = this._activeSpoolId();
+    this._pendingSpoolId = requestedSpoolId;
+    this._spoolSelectionBusy = true;
+
     try {
       await this.hass.callService(service.domain, service.service, data);
+
+      if (verificationService) {
+        const response = await this.hass.callWS<unknown>({
+          type: 'call_service',
+          domain: verificationService.domain,
+          service: verificationService.service,
+          service_data: { useragent: '3D-printer-status-card' },
+          return_response: true,
+        });
+        const confirmedSpoolId = extractConfirmedSpoolId(response);
+        if (!confirmedSpoolId) {
+          throw new Error('Active spool verification returned no valid spool ID');
+        }
+
+        if (confirmedSpoolId === this._activeSpoolId()) {
+          this._pendingSpoolId = undefined;
+          this._selectionBaselineSpoolId = undefined;
+        } else {
+          this._pendingSpoolId = confirmedSpoolId;
+        }
+
+        if (confirmedSpoolId !== requestedSpoolId) {
+          console.warn(
+            '[3D printer status card]',
+            `Moonraker confirmed spool ${confirmedSpoolId} instead of ${requestedSpoolId}`,
+          );
+        }
+      }
     } catch (error) {
-      select.value = this._activeSpoolId() ?? '';
+      this._pendingSpoolId = undefined;
+      this._selectionBaselineSpoolId = undefined;
       this._logError(error);
+    } finally {
+      this._spoolSelectionBusy = false;
     }
   };
 

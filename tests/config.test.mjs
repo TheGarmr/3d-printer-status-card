@@ -13,6 +13,7 @@ test('normalizes an empty config to English and empty optional collections', () 
   assert.equal(config.camera_view, 'live');
   assert.deepEqual(config.entities, {});
   assert.equal(config.spoolman.set_active_spool_service, '');
+  assert.equal(config.spoolman.get_active_spool_service, '');
   assert.deepEqual(config.macros, []);
 });
 
@@ -28,15 +29,27 @@ test('deep-merges a partial Spoolman config without losing defaults', () => {
     config.spoolman.filament_name_entity_template,
     DEFAULT_SPOOLMAN.filament_name_entity_template,
   );
+  assert.equal(
+    config.spoolman.filament_material_entity_template,
+    'sensor.spoolman_spool_{id}_filament_material',
+  );
+  assert.equal(
+    config.spoolman.vendor_name_entity_template,
+    'sensor.spoolman_spool_{id}_vendor_name',
+  );
 });
 
-test('preserves the configured active-spool service', () => {
+test('preserves the configured active-spool services', () => {
   const config = normalizeConfig({
     type: 'custom:printer-status-card',
-    spoolman: { set_active_spool_service: 'rest_command.set_spool_id' },
+    spoolman: {
+      set_active_spool_service: 'rest_command.set_spool_id',
+      get_active_spool_service: 'rest_command.get_active_spool_id',
+    },
   });
 
   assert.equal(config.spoolman.set_active_spool_service, 'rest_command.set_spool_id');
+  assert.equal(config.spoolman.get_active_spool_service, 'rest_command.get_active_spool_id');
 });
 
 test('uses English for unsupported language values', () => {

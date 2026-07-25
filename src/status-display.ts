@@ -3,6 +3,8 @@ export interface PrinterStatusDisplay {
   translationKey?: string;
 }
 
+const ACTIVE_PRINT_STATES = new Set(['printing', 'busy', 'paused', 'pause']);
+
 const STATUS_DISPLAYS: Record<string, PrinterStatusDisplay> = {
   printing: { cssClass: 'printing', translationKey: 'status.printing' },
   busy: { cssClass: 'printing', translationKey: 'status.printing' },
@@ -18,4 +20,8 @@ const STATUS_DISPLAYS: Record<string, PrinterStatusDisplay> = {
 
 export function printerStatusDisplay(status: string): PrinterStatusDisplay {
   return STATUS_DISPLAYS[status.trim().toLowerCase()] ?? { cssClass: 'idle' };
+}
+
+export function isActivePrintStatus(status: string | undefined): boolean {
+  return ACTIVE_PRINT_STATES.has(String(status ?? '').trim().toLowerCase());
 }

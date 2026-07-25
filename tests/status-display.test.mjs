@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { printerStatusDisplay } from '../src/status-display.ts';
+import {
+  isActivePrintStatus,
+  printerStatusDisplay,
+} from '../src/status-display.ts';
 
 test('maps known printer states to a CSS class and translation key', () => {
   assert.deepEqual(printerStatusDisplay('printing'), {
@@ -34,4 +37,14 @@ test('preserves unknown integration-specific status text', () => {
   assert.deepEqual(printerStatusDisplay('calibrating'), {
     cssClass: 'idle',
   });
+});
+
+test('treats printing and paused states as an active print job', () => {
+  for (const state of ['printing', 'PRINTING', 'busy', 'paused', 'pause']) {
+    assert.equal(isActivePrintStatus(state), true, state);
+  }
+
+  for (const state of ['idle', 'complete', 'error', 'calibrating', '', undefined]) {
+    assert.equal(isActivePrintStatus(state), false, String(state));
+  }
 });
