@@ -472,7 +472,7 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     if (!details) {
       return html`
         <div class="row clickable" @click=${() => this._fireMoreInfo(spoolIdEntityId)}>
-          <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t('card.activeSpool')}</span></div>
+          <div class="label"><ha-icon icon="mdi:printer-3d-nozzle-outline"></ha-icon><span>${this._t('card.activeSpool')}</span></div>
           <div class="value">—</div>
         </div>
       `;
@@ -482,7 +482,7 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     return html`
       <div class="spoolman-block" @click=${() => this._fireMoreInfo(infoEntity)}>
         <div class="spoolman-title">
-          <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t('card.spoolman')}</span></div>
+          <div class="label"><ha-icon icon="mdi:printer-3d-nozzle-outline"></ha-icon><span>${this._t('card.spoolman')}</span></div>
           <div class="value">ID ${details.spoolId}</div>
         </div>
         <div class="spoolman-filament">
@@ -521,7 +521,7 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
 
     return html`
       <div class="spool-block">
-        <div class="label"><ha-icon icon="mdi:spool"></ha-icon><span>${this._t('card.spoolSelection')}</span></div>
+        <div class="label"><ha-icon icon="mdi:printer-3d-nozzle-outline"></ha-icon><span>${this._t('card.spoolSelection')}</span></div>
         <div class="spool-select-shell ${this._spoolSelectionBusy ? 'busy' : ''}">
           <select
             class="spool-select"

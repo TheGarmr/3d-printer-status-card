@@ -171,6 +171,28 @@ test('extracts a confirmed spool ID from a REST command response', () => {
   }), '7');
 });
 
+test('reads the active spool ID from a Moonraker result envelope', () => {
+  assert.equal(extractConfirmedSpoolId({
+    context: {},
+    response: {
+      status: 200,
+      content: { result: { spool_id: 7 } },
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+    },
+  }), '7');
+
+  assert.equal(extractConfirmedSpoolId({
+    response: {
+      status: 200,
+      content: '{"result": {"spool_id": 12}}',
+    },
+  }), '12');
+
+  assert.equal(extractConfirmedSpoolId({
+    response: { status: 200, content: { result: { spool_id: null } } },
+  }), undefined);
+});
+
 test('rejects failed or malformed active-spool responses', () => {
   assert.equal(extractConfirmedSpoolId({
     response: { status: 500, content: { spool_id: 18 } },

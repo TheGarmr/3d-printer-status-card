@@ -254,9 +254,11 @@ rest_command:
 
 The card calls `rest_command.set_spool_id`, passing numeric `spool_id` and `useragent`. Configure it as `spoolman.set_active_spool_service`.
 
-For verified selection, configure `rest_command.get_active_spool_id` as `spoolman.get_active_spool_service`. After setting a spool, the card requests this action through Home Assistant with `return_response: true`, reads `content.spool_id`, and displays the ID confirmed by Moonraker. A failed or malformed verification rolls the card back to `entities.spool_id`. When the verification service is omitted, selection remains backward-compatible and waits for that entity to catch up.
+For verified selection, configure `rest_command.get_active_spool_id` as `spoolman.get_active_spool_service`. After setting a spool, the card requests this action through Home Assistant with `return_response: true`, reads `content.result.spool_id` (Moonraker's response envelope; a bare `content.spool_id` is also accepted), and displays the ID confirmed by Moonraker. A failed or malformed verification rolls the card back to `entities.spool_id`. When the verification service is omitted, selection remains backward-compatible and waits for that entity to catch up.
 
 `get_spool_info` remains an optional helper for automations and troubleshooting.
+
+[`examples/home-assistant`](examples/home-assistant) contains companion automations: NFC-tag spool activation, a print-start notification that compares the slicer's filament estimate (Moonraker `/server/files/metadata`) with the active spool's remaining weight, and a reminder that fires only when filament was reloaded without changing the active spool.
 
 `entities.spool_id` must point to a Home Assistant entity that stays synchronized with Moonraker's active spool ID. The REST commands above do not create that entity by themselves; use the entity exposed by your printer integration, a REST sensor, or an automation that refreshes the value. The selector and filament block show the pending or Moonraker-confirmed spool immediately, then reconcile with this entity when it catches up.
 

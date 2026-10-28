@@ -72,7 +72,8 @@ export function extractConfirmedSpoolId(responseValue: unknown): string | undefi
     }
   }
 
-  const spoolId = stateText(recordValue(content)?.spool_id);
+  const payload = recordValue(content);
+  const spoolId = stateText(recordValue(payload?.result)?.spool_id ?? payload?.spool_id);
   return /^\d+$/.test(spoolId) ? spoolId : undefined;
 }
 
