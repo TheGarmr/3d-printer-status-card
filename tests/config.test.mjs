@@ -11,6 +11,13 @@ test('normalizes an empty config to English and empty optional collections', () 
   assert.equal(config.language, 'en');
   assert.equal(config.show_camera, true);
   assert.equal(config.camera_view, 'live');
+  assert.equal(config.show_progress, true);
+  assert.equal(config.show_system_load, true);
+  assert.equal(config.show_memory, true);
+  assert.equal(config.show_thumbnail, true);
+  assert.equal(config.show_emergency_stop, true);
+  assert.equal(config.show_filament_required, true);
+  assert.equal(config.file_metadata_service, '');
   assert.deepEqual(config.entities, {});
   assert.equal(config.spoolman.set_active_spool_service, '');
   assert.equal(config.spoolman.get_active_spool_service, '');
@@ -50,6 +57,25 @@ test('preserves the configured active-spool services', () => {
 
   assert.equal(config.spoolman.set_active_spool_service, 'rest_command.set_spool_id');
   assert.equal(config.spoolman.get_active_spool_service, 'rest_command.get_active_spool_id');
+});
+
+test('keeps explicitly disabled optional blocks off', () => {
+  const config = normalizeConfig({
+    type: 'custom:printer-status-card',
+    show_progress: false,
+    show_system_load: false,
+    show_memory: false,
+    show_thumbnail: false,
+    show_emergency_stop: false,
+    show_filament_required: false,
+  });
+
+  assert.equal(config.show_progress, false);
+  assert.equal(config.show_system_load, false);
+  assert.equal(config.show_memory, false);
+  assert.equal(config.show_thumbnail, false);
+  assert.equal(config.show_emergency_stop, false);
+  assert.equal(config.show_filament_required, false);
 });
 
 test('uses English for unsupported language values', () => {

@@ -166,6 +166,114 @@ export const cardStyles = css`
     overflow-wrap: anywhere;
   }
 
+  .file.with-thumbnail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px 8px 8px;
+  }
+
+  .file-thumbnail {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    object-fit: contain;
+    background: color-mix(in srgb, var(--primary-text-color) 8%, transparent);
+    cursor: zoom-in;
+  }
+
+  .file-name {
+    min-width: 0;
+  }
+
+  .emergency-stop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 40px;
+    margin-top: 14px;
+    padding: 9px 12px;
+    border: 1px solid var(--error-color, #db4437);
+    border-radius: 10px;
+    color: var(--error-color, #db4437);
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+    --mdc-icon-size: 20px;
+  }
+
+  .emergency-stop:hover {
+    background: color-mix(in srgb, var(--error-color, #db4437) 12%, transparent);
+  }
+
+  .emergency-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    margin-top: 14px;
+    padding: 8px 8px 8px 12px;
+    border: 1px solid var(--error-color, #db4437);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--error-color, #db4437) 12%, transparent);
+  }
+
+  .emergency-confirm-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--error-color, #db4437);
+    font-weight: 600;
+    --mdc-icon-size: 20px;
+  }
+
+  .emergency-confirm-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .emergency-cancel,
+  .emergency-confirm-button {
+    min-height: 34px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .emergency-cancel {
+    color: var(--primary-text-color);
+    background: var(--secondary-background-color);
+  }
+
+  .emergency-confirm-button {
+    color: var(--text-primary-color, #fff);
+    background: var(--error-color, #db4437);
+    transition: opacity 150ms ease;
+  }
+
+  .emergency-confirm-button:disabled {
+    opacity: .4;
+    cursor: default;
+  }
+
+  .emergency-stop:focus-visible,
+  .emergency-cancel:focus-visible,
+  .emergency-confirm-button:focus-visible {
+    outline: 2px solid var(--error-color, #db4437);
+    outline-offset: 2px;
+  }
+
   .camera-card {
     min-height: 120px;
     margin-bottom: 14px;
@@ -186,6 +294,85 @@ export const cardStyles = css`
     font-size: 12px;
   }
 
+  .progress-block {
+    margin-bottom: 10px;
+    padding: 10px 12px 12px;
+    border-radius: 12px;
+    background: var(--secondary-background-color);
+    cursor: pointer;
+  }
+
+  .progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .progress-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .progress-layer {
+    color: var(--secondary-text-color);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .progress-value {
+    color: var(--primary-text-color);
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bar {
+    position: relative;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--primary-text-color) 12%, transparent);
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--primary-color, #03a9f4);
+    transition: width 400ms ease;
+  }
+
+  .progress-bar {
+    height: 8px;
+  }
+
+  .progress-bar .bar-fill {
+    background: var(--success-color, #4caf50);
+  }
+
+  .meter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .meter-bar {
+    flex: 0 1 120px;
+    height: 6px;
+  }
+
+  .meter-bar.warning .bar-fill { background: var(--warning-color, #ff9800); }
+  .meter-bar.critical .bar-fill { background: var(--error-color, #db4437); }
+
+  .meter .value {
+    min-width: 3.2em;
+    font-variant-numeric: tabular-nums;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -201,6 +388,10 @@ export const cardStyles = css`
     min-height: 36px;
     padding: 6px 0;
     border-bottom: 1px solid var(--divider-color);
+  }
+
+  .progress-block:hover {
+    filter: brightness(1.05);
   }
 
   .row.clickable:hover,
@@ -232,6 +423,17 @@ export const cardStyles = css`
     font-weight: 500;
     text-align: right;
     overflow-wrap: anywhere;
+  }
+
+  .row.insufficient .label,
+  .row.insufficient .value {
+    color: var(--error-color, #db4437);
+  }
+
+  .value-note {
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: 600;
   }
 
   .spoolman-block {

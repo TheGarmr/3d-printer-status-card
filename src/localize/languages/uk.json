@@ -33,7 +33,15 @@
     "remaining": "Залишок",
     "spoolSelection": "Вибрати котушку",
     "printer": "Принтер",
-    "macros": "Макроси"
+    "macros": "Макроси",
+    "progress": "Прогрес",
+    "layer": "Шар",
+    "systemLoad": "Навантаження",
+    "memory": "ОЗП",
+    "filamentRequired": "Потрібно на друк",
+    "filamentStillNeeded": "Залишилось додрукувати",
+    "onSpool": "На котушці",
+    "notEnoughFilament": "може не вистачити"
   },
   "warning": {
     "cameraUnavailable": "Картка камери недоступна",
@@ -84,7 +92,24 @@
     "macroEntity": "Сутність",
     "macroService": "Сервіс (domain.service)",
     "serviceData": "Дані сервісу (JSON)",
-    "target": "Ціль (JSON)"
+    "target": "Ціль (JSON)",
+    "showProgress": "Показувати прогрес друку",
+    "showSystemLoad": "Показувати навантаження принтера",
+    "showMemory": "Показувати заповненість ОЗП",
+    "progress": "Прогрес друку",
+    "currentLayer": "Поточний шар",
+    "totalLayer": "Усього шарів",
+    "systemLoad": "Навантаження принтера",
+    "memoryUsed": "Заповненість ОЗП",
+    "showThumbnail": "Показувати мініатюру моделі",
+    "showEmergencyStop": "Показувати аварійну зупинку",
+    "bedTarget": "Цільова температура столу",
+    "extruderTarget": "Цільова температура екструдера",
+    "thumbnail": "Камера мініатюри моделі",
+    "emergencyStop": "Кнопка аварійної зупинки",
+    "showFilamentRequired": "Показувати потрібний філамент",
+    "fileMetadataService": "Сервіс метаданих файлу",
+    "filamentRequired": "Сенсор потрібного філаменту (г)"
   },
   "options": {
     "english": "English",
@@ -100,6 +125,10 @@
     "addMacro": "Додати макрос",
     "removeMacro": "Видалити макрос",
     "moveUp": "Підняти",
-    "moveDown": "Опустити"
+    "moveDown": "Опустити",
+    "emergencyStop": "Аварійна зупинка",
+    "emergencyStopConfirm": "Зупинити",
+    "emergencyStopQuestion": "Зупинити принтер?",
+    "cancel": "Скасувати"
   }
 }

@@ -33,7 +33,15 @@
     "remaining": "Remaining",
     "spoolSelection": "Choose spool",
     "printer": "Printer",
-    "macros": "Macros"
+    "macros": "Macros",
+    "progress": "Progress",
+    "layer": "Layer",
+    "systemLoad": "Load",
+    "memory": "RAM",
+    "filamentRequired": "Required for print",
+    "filamentStillNeeded": "Still needed",
+    "onSpool": "On spool",
+    "notEnoughFilament": "may run out"
   },
   "warning": {
     "cameraUnavailable": "Camera card unavailable",
@@ -84,7 +92,24 @@
     "macroEntity": "Entity",
     "macroService": "Service (domain.service)",
     "serviceData": "Service data (JSON)",
-    "target": "Target (JSON)"
+    "target": "Target (JSON)",
+    "showProgress": "Show print progress",
+    "showSystemLoad": "Show printer load",
+    "showMemory": "Show RAM usage",
+    "progress": "Print progress",
+    "currentLayer": "Current layer",
+    "totalLayer": "Total layers",
+    "systemLoad": "Printer load",
+    "memoryUsed": "RAM usage",
+    "showThumbnail": "Show model thumbnail",
+    "showEmergencyStop": "Show emergency stop",
+    "bedTarget": "Bed target temperature",
+    "extruderTarget": "Extruder target temperature",
+    "thumbnail": "Model thumbnail camera",
+    "emergencyStop": "Emergency stop button",
+    "showFilamentRequired": "Show filament required",
+    "fileMetadataService": "File metadata service",
+    "filamentRequired": "Filament required sensor (g)"
   },
   "options": {
     "english": "English",
@@ -100,7 +125,11 @@
     "addMacro": "Add macro",
     "removeMacro": "Remove macro",
     "moveUp": "Move up",
-    "moveDown": "Move down"
+    "moveDown": "Move down",
+    "emergencyStop": "Emergency stop",
+    "emergencyStopConfirm": "Stop",
+    "emergencyStopQuestion": "Stop the printer?",
+    "cancel": "Cancel"
   },
   "fallback": {
     "englishOnly": "English fallback"

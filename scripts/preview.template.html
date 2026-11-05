@@ -237,6 +237,12 @@
         'mdi:clock-outline': '◷',
         'mdi:filament': '◉',
         'mdi:flash': 'ϟ',
+        'mdi:progress-clock': '◔',
+        'mdi:cpu-64-bit': '▣',
+        'mdi:memory': '▦',
+        'mdi:alert-octagon': '⯃',
+        'mdi:weight-gram': '⚖',
+        'mdi:alert': '⚠',
         'mdi:printer-3d-nozzle-outline': '◎'
       };
       customElements.define('ha-icon', class extends HTMLElement {
@@ -296,6 +302,17 @@
       'sensor.printer_total_print_time': state('326.4', 'h'),
       'binary_sensor.printer_filament': state('on'),
       'sensor.printer_filename': state('calibration_cube_0.2mm.gcode'),
+      'sensor.printer_progress': state('26.4', '%'),
+      'sensor.printer_current_layer': state('45'),
+      'sensor.printer_total_layer': state('169'),
+      'sensor.printer_system_load': state('1.6'),
+      'sensor.printer_memory_used': state('43.9', '%'),
+      'number.printer_bed_target': state('60.0', '°C'),
+      'number.printer_extruder_target': state('210.0', '°C'),
+      'camera.printer_thumbnail': state('idle', undefined, {
+        entity_picture: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20d%3D%22M14%2022%2032%2012l18%2010v20L32%2052%2014%2042Z%22%20fill%3D%22%23ff7a18%22%2F%3E%3Cpath%20d%3D%22M14%2022%2032%2032l18-10M32%2032v20%22%20fill%3D%22none%22%20stroke%3D%22%237a3500%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E'
+      }),
+      'button.printer_emergency_stop': state('unknown'),
       'camera.printer': state('streaming'),
       'sensor.printer_spool_id': state('unavailable'),
       'sensor.spoolman_spool_7': state('842', 'g', {
@@ -387,6 +404,28 @@
             }
           };
         }
+        if (
+          message.type === 'call_service'
+          && message.domain === 'rest_command'
+          && message.service === 'get_file_metadata'
+          && message.return_response === true
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 80));
+          return {
+            context: {},
+            response: {
+              status: 200,
+              content: {
+                result: {
+                  filename: message.service_data.filename,
+                  filament_total: 15420.6,
+                  filament_weight_total: 46.1
+                }
+              },
+              headers: { 'content-type': 'application/json' }
+            }
+          };
+        }
         throw new Error(`Unsupported preview WebSocket call: ${message.type}`);
       }
     };
@@ -454,6 +493,15 @@
           total_print_time: 'sensor.printer_total_print_time',
           filament_present: 'binary_sensor.printer_filament',
           filename: 'sensor.printer_filename',
+          progress: 'sensor.printer_progress',
+          current_layer: 'sensor.printer_current_layer',
+          total_layer: 'sensor.printer_total_layer',
+          system_load: 'sensor.printer_system_load',
+          memory_used: 'sensor.printer_memory_used',
+          bed_target: 'number.printer_bed_target',
+          extruder_target: 'number.printer_extruder_target',
+          thumbnail: 'camera.printer_thumbnail',
+          emergency_stop: 'button.printer_emergency_stop',
           power_now: 'sensor.printer_power',
           power_switch: 'switch.printer_plug',
           camera: 'camera.printer',
@@ -463,6 +511,7 @@
           set_active_spool_service: 'rest_command.set_spool_id',
           get_active_spool_service: 'rest_command.get_active_spool_id'
         },
+        file_metadata_service: 'rest_command.get_file_metadata',
         macros: [
           { name: 'Pause', entity: 'button.printer_pause' },
           { name: 'Home axes', service: 'rest_command.printer_gcode', service_data: { script: 'G28' } }

@@ -13,6 +13,12 @@ A configurable Home Assistant Lovelace card for monitoring and controlling a 3D 
 - Camera with `live` or `auto` view
 - Calculated local print completion time derived from the remaining-time entity
 - Print duration, remaining time, completion time, and used filament shown only while printing or paused
+- Print progress bar with the current layer, shown while printing or paused
+- Printer load and RAM usage meters (percentage sensors get a colored bar that turns orange at 75% and red at 90%)
+- Target temperatures next to the current ones while a heater is on (`60.2 / 60 °C`)
+- Model thumbnail next to the file name
+- Emergency stop button that asks for confirmation and can be hidden
+- Filament the print needs, in grams, from the slicer estimate, with a warning when the active Spoolman spool may run out
 - Temperatures, filename, total print time, and current consumption
 - Optional dashboard-style filament indicator in the card header, with configurable sensor states and a localized hover tooltip
 - Optional Spoolman information and active-spool selection through a Home Assistant service
@@ -67,6 +73,13 @@ name: Ender 3 V3 KE
 language: en                    # en | ru | uk
 show_camera: true
 camera_view: live              # live | auto
+show_progress: true            # print progress bar
+show_system_load: true         # printer load row
+show_memory: true              # RAM usage row
+show_thumbnail: true           # model thumbnail next to the file name
+show_emergency_stop: true      # emergency stop button
+show_filament_required: true   # grams the print needs
+file_metadata_service: rest_command.get_file_metadata
 
 filament_present_state: "on"
 filament_missing_state: "off"
@@ -85,6 +98,19 @@ entities:
   filament_present: binary_sensor.printer_filament_sensor
   filename: sensor.printer_filename
   camera: camera.printer_webcam
+
+  # Optional progress and host metrics (Moonraker names shown).
+  progress: sensor.printer_progress
+  current_layer: sensor.printer_current_layer
+  total_layer: sensor.printer_total_layer
+  system_load: sensor.printer_system_load
+  memory_used: sensor.printer_memory_used
+
+  # Optional target temperatures, thumbnail and emergency stop.
+  bed_target: number.printer_bed_target
+  extruder_target: number.printer_extruder_target
+  thumbnail: camera.printer_thumbnail
+  emergency_stop: button.printer_emergency_stop
 
   # Optional plug or breaker checks.
   power_switch: switch.printer_plug
@@ -164,6 +190,13 @@ Compact mode displays only the optional power button, card name, and status badg
 | `language` | `en` | Manual card language: `en`, `ru`, or `uk` |
 | `show_camera` | `true` | Show the configured camera in expanded mode |
 | `camera_view` | `live` | Home Assistant camera mode: `live` or `auto` |
+| `show_progress` | `true` | Show the print progress bar while printing or paused |
+| `show_system_load` | `true` | Show the printer load row |
+| `show_memory` | `true` | Show the RAM usage row |
+| `show_thumbnail` | `true` | Show the model thumbnail next to the file name |
+| `show_emergency_stop` | `true` | Show the emergency stop button |
+| `show_filament_required` | `true` | Show how many grams the current print needs |
+| `file_metadata_service` | empty | Response-returning service that reads Moonraker file metadata, for example `rest_command.get_file_metadata` (see below) |
 | `filament_present_state` | `on` | Raw filament-sensor state interpreted as present |
 | `filament_missing_state` | `off` | Raw filament-sensor state interpreted as missing |
 | `entities` | `{}` | Entity mapping described below |
@@ -187,6 +220,16 @@ All entity fields are optional.
 | `total_print_time` | Lifetime print time |
 | `filament_present` | Filament presence sensor shown as a green/red spool icon in the card header |
 | `filename` | Current file name |
+| `progress` | Print progress in percent, shown as a progress bar |
+| `current_layer` | Current layer, shown next to the progress |
+| `total_layer` | Total layer count, shown as `45 / 169` next to the progress |
+| `system_load` | Printer host load. A `%` sensor is drawn as a meter; a load average such as Moonraker's `system_load` is shown as a number |
+| `memory_used` | Printer host RAM usage in percent, drawn as a meter |
+| `bed_target` | Bed target temperature, shown as `current / target` while above zero |
+| `extruder_target` | Extruder target temperature, shown as `current / target` while above zero |
+| `thumbnail` | Camera entity with the model thumbnail, such as Moonraker's `camera.printer_thumbnail` |
+| `filament_required` | Optional sensor with the grams the print needs. When set, it is used instead of `file_metadata_service` |
+| `emergency_stop` | Button or script for an emergency stop. A tap opens a confirmation with **Cancel** and **Stop**; **Stop** unlocks after 0.7 s so an accidental double-tap cannot fire it, and the confirmation closes by itself after 6 s. Hide the button with `show_emergency_stop: false` |
 | `camera` | Home Assistant camera entity |
 | `power_switch` | Smart plug, relay, or breaker switch |
 | `power_now` | Current power-consumption sensor |
@@ -250,6 +293,13 @@ rest_command:
     url: "http://<SPOOLMAN_HOST>:7912/api/v1/spool/{{ spool_id }}"
     method: GET
     content_type: "application/json"
+
+  get_file_metadata:
+    url: "http://<MOONRAKER_HOST>:7125/server/files/metadata?filename={{ filename | urlencode }}"
+    method: GET
+    headers:
+      accept: "application/json"
+    verify_ssl: false
 ```
 
 The card calls `rest_command.set_spool_id`, passing numeric `spool_id` and `useragent`. Configure it as `spoolman.set_active_spool_service`.
@@ -257,6 +307,8 @@ The card calls `rest_command.set_spool_id`, passing numeric `spool_id` and `user
 For verified selection, configure `rest_command.get_active_spool_id` as `spoolman.get_active_spool_service`. After setting a spool, the card requests this action through Home Assistant with `return_response: true`, reads `content.result.spool_id` (Moonraker's response envelope; a bare `content.spool_id` is also accepted), and displays the ID confirmed by Moonraker. A failed or malformed verification rolls the card back to `entities.spool_id`. When the verification service is omitted, selection remains backward-compatible and waits for that entity to catch up.
 
 `get_spool_info` remains an optional helper for automations and troubleshooting.
+
+For the required-filament row, configure `rest_command.get_file_metadata` as `file_metadata_service`. Whenever `entities.filename` changes, the card calls it once with `filename` and `return_response: true` and reads Moonraker's `filament_weight_total`. If the slicer stored only `filament_total` (length in mm), the card converts it to grams with the active spool's `filament_density` and `filament_diameter` (1.24 g/cm³ and 1.75 mm when unknown). The row is shown while printing or paused. It turns red with "may run out" when the active spool's remaining weight is lower than what is still needed, which is the estimate scaled by `entities.progress`.
 
 [`examples/home-assistant`](examples/home-assistant) contains companion automations: NFC-tag spool activation, a print-start notification that compares the slicer's filament estimate (Moonraker `/server/files/metadata`) with the active spool's remaining weight, and a reminder that fires only when filament was reloaded without changing the active spool.
 

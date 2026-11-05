@@ -15,9 +15,23 @@ import { live } from 'lit/directives/live.js';
 
 import { getStubConfig, normalizeConfig } from './config';
 import { filamentIndicatorState } from './filament-indicator';
+import {
+  extractFileMetadata,
+  formatGrams,
+  remainingFilamentGrams,
+  requiredFilamentGrams,
+} from './filament-required';
 import { finishTimeText } from './finish-time';
 import { localize } from './localize/localize';
-import { isOfflineState, resolveCardMode } from './power-state';
+import {
+  formatPercent,
+  layerText,
+  meterLevel,
+  numericState,
+  percentState,
+  temperatureWithTargetText,
+} from './meter';
+import { isOfflineState, normalizedState, resolveCardMode } from './power-state';
 import {
   buildSpoolServiceData,
   discoverSpoolOptions,
@@ -37,7 +51,13 @@ import type {
 
 type FormattableHass = HomeAssistant & {
   formatEntityState?: (entity: HomeAssistant['states'][string]) => string;
+  hassUrl?: (path: string) => string;
 };
+
+const EMERGENCY_STOP_LOCK_MS = 700;
+const EMERGENCY_STOP_CANCEL_MS = 6000;
+
+type EmergencyStopStage = 'idle' | 'confirming' | 'ready';
 
 type CardHelpers = {
   createCardElement: (config: Record<string, unknown>) => LovelaceCard;
@@ -57,11 +77,21 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
   @state() private _cameraError = false;
   @state() private _pendingSpoolId?: string;
   @state() private _spoolSelectionBusy = false;
+  @state() private _thumbnailFailedUrl?: string;
+  @state() private _fileMetadata?: { filename: string; metadata?: Record<string, unknown> };
+  @state() private _emergencyStopStage: EmergencyStopStage = 'idle';
 
   private _cameraCard?: LovelaceCard;
   private _cameraEntity?: string;
   private _cameraFailedEntity?: string;
   private _selectionBaselineSpoolId?: string;
+  private _emergencyStopTimers: ReturnType<typeof setTimeout>[] = [];
+  private _metadataRequestedFor?: string;
+
+  public disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._resetEmergencyStop();
+  }
 
   public setConfig(config: PrinterStatusCardConfig): void {
     this._config = normalizeConfig(config);
@@ -72,6 +102,10 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     this._pendingSpoolId = undefined;
     this._spoolSelectionBusy = false;
     this._selectionBaselineSpoolId = undefined;
+    this._thumbnailFailedUrl = undefined;
+    this._fileMetadata = undefined;
+    this._metadataRequestedFor = undefined;
+    this._resetEmergencyStop();
   }
 
   public static getStubConfig(): PrinterStatusCardConfig {
@@ -129,6 +163,7 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
 
   protected updated(): void {
     void this._syncCameraCard();
+    void this._syncFileMetadata();
   }
 
   private _t(key: string): string {
@@ -243,14 +278,34 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     const showFilename = filenameId && filenameEntity && !isOfflineState(filenameEntity);
     const activePrint = this._isActivePrintJob();
 
+    const thumbnailUrl = showFilename ? this._thumbnailUrl() : undefined;
+
     return html`
       ${showFilename ? html`
-        <div class="file" @click=${() => this._fireMoreInfo(filenameId)}>
-          <strong>${this._t('card.file')}:</strong> ${filenameEntity.state}
+        <div
+          class="file ${thumbnailUrl ? 'with-thumbnail' : ''}"
+          @click=${() => this._fireMoreInfo(filenameId)}
+        >
+          ${thumbnailUrl ? html`
+            <img
+              class="file-thumbnail"
+              src=${thumbnailUrl}
+              alt=""
+              loading="lazy"
+              @error=${() => { this._thumbnailFailedUrl = thumbnailUrl; }}
+              @click=${(event: Event) => {
+                event.stopPropagation();
+                this._fireMoreInfo(this._config.entities.thumbnail);
+              }}
+            >
+          ` : nothing}
+          <div class="file-name"><strong>${this._t('card.file')}:</strong> ${filenameEntity.state}</div>
         </div>
       ` : nothing}
 
       ${this._renderCamera()}
+
+      ${activePrint ? this._renderProgress() : nothing}
 
       <div class="grid">
         ${activePrint
@@ -264,16 +319,120 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
         ${activePrint
           ? this._renderEntityRow('filament_used', 'card.filamentUsed', 'mdi:printer-3d-nozzle')
           : nothing}
+        ${activePrint ? this._renderFilamentRequired() : nothing}
         ${this._renderSpoolSelect()}
         <div class="section-title printer-section-title">${this._t('card.printer')}</div>
-        ${this._renderEntityRow('bed_temp', 'card.bedTemperature', 'mdi:radiator')}
-        ${this._renderEntityRow('extruder_temp', 'card.extruderTemperature', 'mdi:thermometer')}
+        ${this._renderTemperatureRow('bed_temp', 'bed_target', 'card.bedTemperature', 'mdi:radiator')}
+        ${this._renderTemperatureRow('extruder_temp', 'extruder_target', 'card.extruderTemperature', 'mdi:thermometer')}
+        ${this._config.show_system_load
+          ? this._renderMeterRow('system_load', 'card.systemLoad', 'mdi:cpu-64-bit')
+          : nothing}
+        ${this._config.show_memory
+          ? this._renderMeterRow('memory_used', 'card.memory', 'mdi:memory')
+          : nothing}
         ${this._renderEntityRow('total_print_time', 'card.totalPrintTime', 'mdi:clock-outline')}
         ${this._renderEntityRow('power_now', 'card.powerNow', 'mdi:flash')}
       </div>
 
+      ${this._renderEmergencyStop()}
       ${this._renderMacros()}
     `;
+  }
+
+  private _currentFilename(): string | undefined {
+    const entity = this._entity(this._config.entities.filename);
+    return entity && !isOfflineState(entity) ? entity.state : undefined;
+  }
+
+  private async _syncFileMetadata(): Promise<void> {
+    if (!this.hass || !this._config.show_filament_required) return;
+    if (this._config.entities.filament_required) return;
+    const service = parseServiceReference(this._config.file_metadata_service);
+    const filename = this._currentFilename();
+    if (!service || !filename || filename === this._metadataRequestedFor) return;
+
+    this._metadataRequestedFor = filename;
+    this._fileMetadata = undefined;
+    let metadata: Record<string, unknown> | undefined;
+    try {
+      const response = await this.hass.callWS<unknown>({
+        type: 'call_service',
+        domain: service.domain,
+        service: service.service,
+        service_data: { filename },
+        return_response: true,
+      });
+      metadata = extractFileMetadata(response);
+    } catch (error) {
+      this._logError(error);
+    }
+    if (this._metadataRequestedFor === filename) this._fileMetadata = { filename, metadata };
+  }
+
+  private _requiredGrams(): number | undefined {
+    const entityId = this._config.entities.filament_required;
+    if (entityId) {
+      const value = numericState(this._entity(entityId));
+      return value !== undefined && value > 0 ? value : undefined;
+    }
+
+    const filename = this._currentFilename();
+    if (!filename || this._fileMetadata?.filename !== filename) return undefined;
+    const spoolAttributes = this._spoolDetails()?.mainEntity?.attributes ?? {};
+    return requiredFilamentGrams(
+      this._fileMetadata.metadata,
+      spoolAttributes.filament_density,
+      spoolAttributes.filament_diameter,
+    );
+  }
+
+  private _renderFilamentRequired(): TemplateResult | typeof nothing {
+    if (!this._config.show_filament_required) return nothing;
+    const required = this._requiredGrams();
+    if (required === undefined) return nothing;
+
+    const progressEntity = this._entity(this._config.entities.progress);
+    const progress = progressEntity && !isOfflineState(progressEntity)
+      ? percentState(progressEntity) ?? numericState(progressEntity)
+      : undefined;
+    const stillNeeded = remainingFilamentGrams(required, progress);
+    const spoolEntity = this._spoolDetails()?.mainEntity;
+    const onSpool = spoolEntity?.attributes?.unit_of_measurement === 'g'
+      ? numericState(spoolEntity)
+      : undefined;
+    const insufficient = onSpool !== undefined && onSpool < stillNeeded;
+    const infoEntity = this._config.entities.filament_required ?? this._config.entities.filename;
+    const hint = onSpool === undefined
+      ? undefined
+      : `${this._t('card.filamentStillNeeded')}: ${formatGrams(stillNeeded)} · ${this._t('card.onSpool')}: ${formatGrams(onSpool)}`;
+
+    return html`
+      <div
+        class="row clickable ${insufficient ? 'insufficient' : ''}"
+        title=${hint ?? nothing}
+        @click=${() => this._fireMoreInfo(infoEntity)}
+      >
+        <div class="label">
+          <ha-icon icon=${insufficient ? 'mdi:alert' : 'mdi:weight-gram'}></ha-icon>
+          <span>${this._t('card.filamentRequired')}</span>
+        </div>
+        <div class="value">
+          ${formatGrams(required)}${insufficient
+            ? html`<span class="value-note">${this._t('card.notEnoughFilament')}</span>`
+            : nothing}
+        </div>
+      </div>
+    `;
+  }
+
+  private _thumbnailUrl(): string | undefined {
+    if (!this._config.show_thumbnail) return undefined;
+    const entity = this._entity(this._config.entities.thumbnail);
+    if (!entity || isOfflineState(entity)) return undefined;
+    const picture = entity.attributes?.entity_picture;
+    if (typeof picture !== 'string' || picture === '') return undefined;
+    const url = (this.hass as FormattableHass).hassUrl?.(picture) ?? picture;
+    return url === this._thumbnailFailedUrl ? undefined : url;
   }
 
   private _isActivePrintJob(): boolean {
@@ -300,6 +459,92 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
       <div class="row clickable" @click=${() => this._fireMoreInfo(entityId)}>
         <div class="label"><ha-icon icon=${icon}></ha-icon><span>${this._t(labelKey)}</span></div>
         <div class="value">${this._formatEntity(entityId)}</div>
+      </div>
+    `;
+  }
+
+  private _renderTemperatureRow(
+    key: keyof PrinterEntities,
+    targetKey: keyof PrinterEntities,
+    labelKey: string,
+    icon: string,
+  ): TemplateResult | typeof nothing {
+    const entityId = this._config.entities[key];
+    const entity = this._entity(entityId);
+    if (!entityId || !entity || isOfflineState(entity)) return nothing;
+
+    const value = temperatureWithTargetText(
+      entity,
+      this._entity(this._config.entities[targetKey]),
+    );
+    if (!value) return this._renderEntityRow(key, labelKey, icon);
+
+    return html`
+      <div class="row clickable" @click=${() => this._fireMoreInfo(entityId)}>
+        <div class="label"><ha-icon icon=${icon}></ha-icon><span>${this._t(labelKey)}</span></div>
+        <div class="value">${value}</div>
+      </div>
+    `;
+  }
+
+  private _renderProgress(): TemplateResult | typeof nothing {
+    const entityId = this._config.entities.progress;
+    const entity = this._entity(entityId);
+    if (!this._config.show_progress || !entityId || !entity || isOfflineState(entity)) {
+      return nothing;
+    }
+
+    const percent = percentState(entity) ?? numericState(entity);
+    if (percent === undefined) return nothing;
+    const clamped = Math.min(100, Math.max(0, percent));
+    const layers = layerText(
+      this._entity(this._config.entities.current_layer),
+      this._entity(this._config.entities.total_layer),
+    );
+
+    return html`
+      <div
+        class="progress-block clickable"
+        role="progressbar"
+        aria-label=${this._t('card.progress')}
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow=${Math.floor(clamped)}
+        @click=${() => this._fireMoreInfo(entityId)}
+      >
+        <div class="progress-head">
+          <div class="label"><ha-icon icon="mdi:progress-clock"></ha-icon><span>${this._t('card.progress')}</span></div>
+          <div class="progress-meta">
+            ${layers ? html`<span class="progress-layer">${this._t('card.layer')} ${layers}</span>` : nothing}
+            <strong class="progress-value">${formatPercent(clamped)}</strong>
+          </div>
+        </div>
+        <div class="bar progress-bar"><div class="bar-fill" style=${`width:${clamped}%`}></div></div>
+      </div>
+    `;
+  }
+
+  private _renderMeterRow(
+    key: keyof PrinterEntities,
+    labelKey: string,
+    icon: string,
+  ): TemplateResult | typeof nothing {
+    const entityId = this._config.entities[key];
+    const entity = this._entity(entityId);
+    if (!entityId || !entity || isOfflineState(entity)) return nothing;
+
+    const percent = percentState(entity);
+    if (percent === undefined) return this._renderEntityRow(key, labelKey, icon);
+
+    return html`
+      <div class="row meter-row clickable" @click=${() => this._fireMoreInfo(entityId)}>
+        <div class="label"><ha-icon icon=${icon}></ha-icon><span>${this._t(labelKey)}</span></div>
+        <div class="meter">
+          <div class="bar meter-bar ${meterLevel(percent)}">
+            <div class="bar-fill" style=${`width:${percent}%`}></div>
+          </div>
+          <div class="value">${formatPercent(percent)}</div>
+        </div>
       </div>
     `;
   }
@@ -548,6 +793,43 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     `;
   }
 
+  private _renderEmergencyStop(): TemplateResult | typeof nothing {
+    const entityId = this._config.entities.emergency_stop;
+    const entity = this._entity(entityId);
+    if (!this._config.show_emergency_stop || !entityId || !entity) return nothing;
+    if (normalizedState(entity) === 'unavailable') return nothing;
+
+    if (this._emergencyStopStage === 'idle') {
+      return html`
+        <button type="button" class="emergency-stop" @click=${this._requestEmergencyStop}>
+          <ha-icon icon="mdi:alert-octagon"></ha-icon>
+          <span>${this._t('actions.emergencyStop')}</span>
+        </button>
+      `;
+    }
+
+    const ready = this._emergencyStopStage === 'ready';
+    return html`
+      <div class="emergency-confirm" role="alertdialog" aria-live="assertive">
+        <div class="emergency-confirm-text">
+          <ha-icon icon="mdi:alert-octagon"></ha-icon>
+          <span>${this._t('actions.emergencyStopQuestion')}</span>
+        </div>
+        <div class="emergency-confirm-actions">
+          <button type="button" class="emergency-cancel" @click=${this._resetEmergencyStop}>
+            ${this._t('actions.cancel')}
+          </button>
+          <button
+            type="button"
+            class="emergency-confirm-button"
+            ?disabled=${!ready}
+            @click=${this._confirmEmergencyStop}
+          >${this._t('actions.emergencyStopConfirm')}</button>
+        </div>
+      </div>
+    `;
+  }
+
   private _renderMacros(): TemplateResult | typeof nothing {
     if (this._config.macros.length === 0) return nothing;
 
@@ -582,6 +864,30 @@ export class PrinterStatusCard extends LitElement implements LovelaceCard {
     } catch (error) {
       this._logError(error);
     }
+  };
+
+  private _requestEmergencyStop = (): void => {
+    this._resetEmergencyStop();
+    this._emergencyStopStage = 'confirming';
+    this._emergencyStopTimers = [
+      setTimeout(() => {
+        if (this._emergencyStopStage === 'confirming') this._emergencyStopStage = 'ready';
+      }, EMERGENCY_STOP_LOCK_MS),
+      setTimeout(this._resetEmergencyStop, EMERGENCY_STOP_CANCEL_MS),
+    ];
+  };
+
+  private _confirmEmergencyStop = async (): Promise<void> => {
+    if (this._emergencyStopStage !== 'ready') return;
+    this._resetEmergencyStop();
+    const entity = this._config.entities.emergency_stop;
+    if (entity) await this._callMacro({ entity });
+  };
+
+  private _resetEmergencyStop = (): void => {
+    this._emergencyStopTimers.forEach(clearTimeout);
+    this._emergencyStopTimers = [];
+    this._emergencyStopStage = 'idle';
   };
 
   private _selectSpool = async (event: Event): Promise<void> => {

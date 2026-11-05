@@ -3,6 +3,13 @@ name: Ender 3 V3 KE
 language: en
 show_camera: true
 camera_view: live
+show_progress: true
+show_system_load: true
+show_memory: true
+show_thumbnail: true
+show_emergency_stop: true
+show_filament_required: true
+file_metadata_service: rest_command.get_file_metadata
 filament_present_state: "on"
 filament_missing_state: "off"
 spoolman:
@@ -24,6 +31,15 @@ entities:
   total_print_time: sensor.tucana_total_print_time
   filament_present: binary_sensor.tucana_filament_sensor
   filename: sensor.tucana_filename
+  progress: sensor.tucana_progress
+  current_layer: sensor.tucana_current_layer
+  total_layer: sensor.tucana_total_layer
+  system_load: sensor.tucana_system_load
+  memory_used: sensor.tucana_memory_used
+  bed_target: number.tucana_bed_target
+  extruder_target: number.tucana_extruder_target
+  thumbnail: camera.tucana_thumbnail
+  emergency_stop: button.tucana_emergency_stop
   camera: camera.tucana_webcam
   power_switch: switch.tucana_plug
   power_now: sensor.tucana_plug_power
@@ -39,23 +55,30 @@ macros:
     entity: button.tucana_cancel_print
 
   - name: Home axes
-    service: rest_command.tucana_gcode
+    service: moonraker.send_gcode
     service_data:
-      script: G28
+      device_id: 0553efa9d6cc67430d711d21ecca853e
+      gcode: G28
+
+  - name: Home all axes Z extrude
+    entity: button.tucana_macro_home_all_z_up_extrude
 
   - name: Preheat PLA
-    service: rest_command.tucana_gcode
+    service: moonraker.send_gcode
     service_data:
-      script: |-
+      device_id: 0553efa9d6cc67430d711d21ecca853e
+      gcode: |-
         M104 S210
         M140 S60
 
   - name: Motors off
-    service: rest_command.tucana_gcode
+    service: moonraker.send_gcode
     service_data:
-      script: M84
+      device_id: 0553efa9d6cc67430d711d21ecca853e
+      gcode: M84
 
   - name: Cooldown
-    service: rest_command.tucana_gcode
+    service: moonraker.send_gcode
     service_data:
-      script: TURN_OFF_HEATERS
+      device_id: 0553efa9d6cc67430d711d21ecca853e
+      gcode: TURN_OFF_HEATERS
